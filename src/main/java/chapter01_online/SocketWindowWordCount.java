@@ -48,7 +48,7 @@ public class SocketWindowWordCount {
                 }
             }
         }).keyBy(value -> value.f0)
-                .sum(1);
+                .sum(1); //滚动聚合算子
 
         sumData.print();
 

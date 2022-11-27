@@ -26,7 +26,7 @@ public class MySourceFunction implements SourceFunction<UserBehavior> {
             ctx.collect(
                     new UserBehavior(
                             //int number=r.nextInt(10) 获取数的范围：[0,10)
-                            Long.valueOf(random.nextInt(100000)),
+                            Long.valueOf(random.nextInt(2)),
                             Long.valueOf(random.nextInt(100)),
                             random.nextInt(50),
                             behaviorList.get(random.nextInt(behaviorList.size())),
