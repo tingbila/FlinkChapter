@@ -11,7 +11,7 @@ public class Transform_Map {
     public static void main(String[] args) throws Exception {
         // 0.创建执行环境
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-        env.setParallelism(1);
+
         // 1.从文件读取数据
         DataStreamSource<String> inputDS = env.readTextFile("D:\\workspace\\idea_location\\FlinkChapter\\input\\UserBehavior.log");
 
