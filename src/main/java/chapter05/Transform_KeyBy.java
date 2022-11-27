@@ -2,6 +2,7 @@ package chapter05;
 
 import bean.UserBehavior;
 import org.apache.flink.api.java.functions.KeySelector;
+import org.apache.flink.api.java.tuple.Tuple;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.datastream.KeyedStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
@@ -23,6 +24,7 @@ public class Transform_KeyBy {
 //                return value.getBehavior();
 //            }
 //        });
+//        KeyedStream<UserBehavior, Tuple> keyedStream = dataStreamSource.keyBy("behavior");
 
         keyedStream.print();
 
