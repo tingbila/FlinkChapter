@@ -4,7 +4,7 @@ import bean.UserBehavior;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
-import util.MySourceFunction;
+import util.MyUserBehaviorSource;
 
 import java.util.Arrays;
 import java.util.List;
@@ -17,7 +17,7 @@ public class Source_MySource {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
         // TODO 1.Source：从自定义数据源读取
-        DataStreamSource<UserBehavior> dataStreamSource = env.addSource(new MySourceFunction());
+        DataStreamSource<UserBehavior> dataStreamSource = env.addSource(new MyUserBehaviorSource());
 
         dataStreamSource.print();
 

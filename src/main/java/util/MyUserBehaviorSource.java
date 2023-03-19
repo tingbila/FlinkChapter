@@ -13,7 +13,7 @@ import java.util.Random;
 通过实现ParallelSourceFunction接口或者继承RichParallelSourceFunction类来自定义有并行度的数据源。
 */
 
-public class MySourceFunction implements SourceFunction<UserBehavior> {
+public class MyUserBehaviorSource implements SourceFunction<UserBehavior> {
     // 定义一个标志位，控制数据的产生
     private boolean flag = true;
     private List<String> behaviorList = Arrays.asList("pv", "buy", "fav", "cart");

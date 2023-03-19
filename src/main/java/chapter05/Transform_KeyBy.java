@@ -6,7 +6,7 @@ import org.apache.flink.api.java.tuple.Tuple;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.datastream.KeyedStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import util.MySourceFunction;
+import util.MyUserBehaviorSource;
 
 public class Transform_KeyBy {
     public static void main(String[] args) throws Exception {
@@ -14,7 +14,7 @@ public class Transform_KeyBy {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
         // TODO 1.Source：从自定义数据源读取
-        DataStreamSource<UserBehavior> dataStreamSource = env.addSource(new MySourceFunction());
+        DataStreamSource<UserBehavior> dataStreamSource = env.addSource(new MyUserBehaviorSource());
 
         // 通过keyBy(new KeySelector {...})指定字段进行分区或者通过lambda表达式进行分区
         KeyedStream<UserBehavior, String> keyedStream = dataStreamSource.keyBy(value -> value.getBehavior());

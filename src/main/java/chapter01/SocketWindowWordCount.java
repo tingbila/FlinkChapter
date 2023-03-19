@@ -14,7 +14,7 @@ public class SocketWindowWordCount {
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
         // get input data by connecting to the socket
-        DataStream<String> text = env.socketTextStream("192.168.179.101", 9999, "\n");
+        DataStream<String> text = env.socketTextStream("192.168.40.101", 9999, "\n");
 
         DataStream<Tuple2<String, Integer>> counts =
                 // split up the lines in pairs (2-tuples) containing: (word,1)

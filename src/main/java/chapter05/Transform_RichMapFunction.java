@@ -8,7 +8,7 @@ import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import util.MySourceFunction;
+import util.MyUserBehaviorSource;
 
 public class Transform_RichMapFunction {
     public static void main(String[] args) throws Exception {
@@ -17,7 +17,7 @@ public class Transform_RichMapFunction {
         env.setParallelism(2);
 
         // 从自定义数据源读取
-        DataStreamSource<UserBehavior> dataStreamSource = env.addSource(new MySourceFunction());
+        DataStreamSource<UserBehavior> dataStreamSource = env.addSource(new MyUserBehaviorSource());
 
         SingleOutputStreamOperator<String> DS = dataStreamSource.map(new MyMapFunction());
 
