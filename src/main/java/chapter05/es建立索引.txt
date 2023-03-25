@@ -1,0 +1,28 @@
+创建索引并指定映射关系:
+curl -H "Content-Type: application/json" -XPUT 'http://192.168.40.101:9200/viewlog' -d '{
+    "mappings": {
+        "userbehavior": {
+            "properties": {
+                "userId": {
+                    "type": "text",
+                    "store": true,
+                    "index":false
+                },
+                "itemId": {
+                    "type": "text",
+                    "store": true,
+                    "index":true,
+                    "analyzer":"standard"
+                },
+                "behavior": {
+                    "type": "text",
+                    "store": true,
+                    "index": true,
+                    "analyzer":"standard"
+                }
+            }
+        }
+    }
+}'
+
+
