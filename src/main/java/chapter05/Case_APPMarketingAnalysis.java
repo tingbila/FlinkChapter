@@ -19,7 +19,7 @@ import util.MyUserBehaviorSource;
 /**
  * 对于电商企业来说，一般会通过各种不同的渠道对自己的APP进行市场推广，而这些渠道的统计数据（比如，不同网站上广告链接的点击量、
  * APP下载量）就成了市场营销的重要商业指标
- * 需求:统计不同渠道不同行为对应的统计数据
+ * 需求:统计不同渠道不同行为对应的推广数据
  */
 public class Case_APPMarketingAnalysis {
     public static void main(String[] args) throws Exception {
@@ -34,6 +34,7 @@ public class Case_APPMarketingAnalysis {
         DataStream<Tuple2<String, Long>> mapData = dataStreamSource.map(new MapFunction<MarketingUserBehavior, Tuple2<String, Long>>() {
             @Override
             public Tuple2<String, Long> map(MarketingUserBehavior value) throws Exception {
+                //在这里key进行了拼接。
                 return Tuple2.of(value.getChannel() + "_" + value.getBehavior(), 1L);
             }
         });

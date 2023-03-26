@@ -17,7 +17,7 @@ import util.MyUserBehaviorSource;
 import java.util.HashSet;
 import java.util.Set;
 
-//需求:基于用户浏览信息统计总浏览pv
+//需求:基于用户浏览信息统计总uv
 //当前使用Set进行处理,后面我们使用布隆过滤器进行优化
 
 public class Case_Uv {
