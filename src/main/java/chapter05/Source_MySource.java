@@ -16,7 +16,7 @@ public class Source_MySource {
         // 0.创建执行环境
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
-        // TODO 1.Source：从自定义数据源读取
+        // Source：从自定义数据源读取
         DataStreamSource<UserBehavior> dataStreamSource = env.addSource(new MyUserBehaviorSource());
 
         dataStreamSource.print();

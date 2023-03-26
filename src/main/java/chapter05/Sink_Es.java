@@ -30,7 +30,7 @@ public class Sink_Es {
         //ES连接信息
         List<HttpHost> httpHosts = new ArrayList<>();
         httpHosts.add(new HttpHost("192.168.40.101", 9200, "http"));
-        httpHosts.add(new HttpHost("192.168.40.101", 9200, "http"));
+        httpHosts.add(new HttpHost("192.168.40.102", 9200, "http"));
 
         // use a ElasticsearchSink.Builder to create an ElasticsearchSink
         ElasticsearchSink.Builder<UserBehavior> esSinkBuilder = new ElasticsearchSink.Builder<>(httpHosts, new ElasticsearchSinkFunction<UserBehavior>() {
@@ -39,11 +39,11 @@ public class Sink_Es {
                 Map<String, String> json = new HashMap<>();
                 //文档内容
                 json.put("userID", String.valueOf(userBehavior.getUserId()));
-                json.put("productID", String.valueOf(userBehavior.getItemId()));
-                json.put("productPrice", userBehavior.getBehavior());
+                json.put("itemId", String.valueOf(userBehavior.getItemId()));
+                json.put("behavior", userBehavior.getBehavior());
 
                 IndexRequest source = Requests.indexRequest()
-                        .index("viewlog")
+                        .index("userviewlog")
                         .type("userbehavior")
                         .id(String.valueOf(userBehavior.getUserId()))   //指定主键
                         .source(json);

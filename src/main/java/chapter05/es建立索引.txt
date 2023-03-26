@@ -1,5 +1,5 @@
 创建索引并指定映射关系:
-curl -H "Content-Type: application/json" -XPUT 'http://192.168.40.101:9200/viewlog' -d '{
+curl -H "Content-Type: application/json" -XPUT 'http://192.168.40.101:9200/userviewlog' -d '{
     "mappings": {
         "userbehavior": {
             "properties": {
@@ -26,3 +26,11 @@ curl -H "Content-Type: application/json" -XPUT 'http://192.168.40.101:9200/viewl
 }'
 
 
+[es@s103 /usr/local/software/elasticsearch-head]$npm run start
+
+> elasticsearch-head@0.0.0 start
+> grunt server
+
+Running "connect:server" (connect) task
+Waiting forever...
+Started connect web server on http://192.168.40.103:9100
