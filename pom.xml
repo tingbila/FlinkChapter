@@ -99,6 +99,18 @@
             <artifactId>lombok</artifactId>
             <version>1.18.16</version>
         </dependency>
+        <!-- ERROR StatusLogger Log4j2 could not find a logging implementation-->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>2.10.0</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-api -->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <version>2.10.0</version>
+        </dependency>
     </dependencies>
 
     <build>

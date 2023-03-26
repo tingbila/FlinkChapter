@@ -35,11 +35,13 @@ public class Sink_MySink {
             @Override
             public void open(Configuration parameters) throws Exception {
                 conn = DriverManager.getConnection("jdbc:mysql://192.168.40.102:3306/userinfo", "root", "123456");
+                //预编译
                 ps = conn.prepareStatement("insert into userstatics (user_id, item_id, behavior) values (?,?,?)");
             }
 
             @Override
             public void invoke(UserBehavior t, Context context) throws Exception {
+                //占位符从第一个开始
                 ps.setInt(1, t.getUserId().intValue());
                 ps.setString(2, String.valueOf(t.getItemId()));
                 ps.setString(3, t.getBehavior());
