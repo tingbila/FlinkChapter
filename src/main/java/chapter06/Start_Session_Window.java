@@ -31,6 +31,7 @@ public class Start_Session_Window {
 
         // 通过keyBy(new KeySelector {...})指定字段进行分区或者通过lambda表达式进行分区
         KeyedStream<UserBehavior, Long> keyedStream = filterDataStream.keyBy(value -> value.getUserId());
+        // 会话窗口只能通过.window()的方式进行调用
         WindowedStream<UserBehavior, Long, TimeWindow> dataWS = keyedStream.window(ProcessingTimeSessionWindows.withGap(Time.seconds(5)));
         DataStream<String> sumPvData = dataWS.process(new ProcessWindowFunction<UserBehavior, String, Long, TimeWindow>() {
             // 定义一个变量，来统计条数
