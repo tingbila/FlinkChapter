@@ -51,7 +51,7 @@ public class Watermark_LateEvent_SideOutput {
         OutputTag<WaterSensor> lateDataOutputTag = new OutputTag<WaterSensor>("late data") {
         };
         SingleOutputStreamOperator<String> processData = mapDataStream
-                .keyBy(value -> value.getId())
+                .keyBy(WaterSensor::getId)
                 .timeWindow(Time.seconds(5))               //[0,5)本应该在event_time >= 5秒时触发计算
                 .allowedLateness(Time.seconds(2))          //设置窗口延迟司时间参数
                 .sideOutputLateData(lateDataOutputTag)     //将延迟的数据写入到侧输出流
