@@ -68,7 +68,8 @@ public class Watermark_LateEvent_SideOutput {
 
         processData.print();
         //注意:调用getSideOutput方法的不能是DataStream方法
-        processData.getSideOutput(lateDataOutputTag).print("late data in side-output");
+        DataStream<WaterSensor> sideOutputDS = processData.getSideOutput(lateDataOutputTag);
+        sideOutputDS.print("late data in side-output");
 
         env.execute("Watermark_LateEvent_SideOutput");
     }
