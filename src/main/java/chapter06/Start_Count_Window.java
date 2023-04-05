@@ -30,7 +30,7 @@ public class Start_Count_Window {
         // 通过keyBy(new KeySelector {...})指定字段进行分区或者通过lambda表达式进行分区
         KeyedStream<UserBehavior, Long> keyedStream = filterDataStream.keyBy(value -> value.getUserId());
 //        WindowedStream<UserBehavior, Long, GlobalWindow> countWindowWS = keyedStream.countWindow(5);
-        WindowedStream<UserBehavior, Long, GlobalWindow> countWindowWS = keyedStream.countWindow(5, 2);
+        WindowedStream<UserBehavior, Long, GlobalWindow> countWindowWS = keyedStream.countWindow(5,2);
         DataStream<String> sumPvData = countWindowWS.process(new ProcessWindowFunction<UserBehavior, String, Long, GlobalWindow>() {
             // 定义一个变量，来统计条数
             private Long pvCount = 0L;

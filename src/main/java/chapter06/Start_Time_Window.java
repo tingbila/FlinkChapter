@@ -29,8 +29,8 @@ public class Start_Time_Window {
 
         // 通过keyBy(new KeySelector {...})指定字段进行分区或者通过lambda表达式进行分区
         KeyedStream<UserBehavior, Long> keyedStream = filterDataStream.keyBy(value -> value.getUserId());
-        WindowedStream<UserBehavior, Long, TimeWindow> dataWS = keyedStream.timeWindow(Time.seconds(5));
-        //WindowedStream<UserBehavior, Long, TimeWindow> dataWS = keyedStream.timeWindow(Time.seconds(50),Time.seconds(5));
+//        WindowedStream<UserBehavior, Long, TimeWindow> dataWS = keyedStream.timeWindow(Time.seconds(5));
+        WindowedStream<UserBehavior, Long, TimeWindow> dataWS = keyedStream.timeWindow(Time.seconds(50),Time.seconds(5));
         DataStream<String> sumPvData = dataWS.process(new ProcessWindowFunction<UserBehavior, String, Long, TimeWindow>() {
             // 定义一个变量，来统计条数
             private Long pvCount = 0L;

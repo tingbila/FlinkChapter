@@ -38,8 +38,8 @@ public class Watermark_UD_Periodic {
             //自己实现的话需要保证watermark不要回退
             //代码仿照BoundedOutOfOrdernessTimestampExtractor的源码编写即可
             private long maxOutOfOrderness = 2 * 1000L;   //自定义乱序时间
-            private long currentMaxTimestamp = Long.MIN_VALUE;
-            private long lastEmittedWatermark = Long.MIN_VALUE;
+            private long currentMaxTimestamp = 0;
+            private long lastEmittedWatermark = 0;
 
             @Nullable
             @Override
