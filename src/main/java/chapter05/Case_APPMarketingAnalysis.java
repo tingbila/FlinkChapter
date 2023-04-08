@@ -26,7 +26,9 @@ public class Case_APPMarketingAnalysis {
         // get the execution environment
         Configuration conf = new Configuration();
         conf.set(RestOptions.PORT, 8083);
+
         StreamExecutionEnvironment env = StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(conf);
+        env.setParallelism(1);
 
         // 读取数据
         DataStreamSource<MarketingUserBehavior> dataStreamSource = env.addSource(new MarketingUserBehaviorSource());
