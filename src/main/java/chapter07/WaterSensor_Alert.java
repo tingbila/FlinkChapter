@@ -57,19 +57,19 @@ public class WaterSensor_Alert {
             //为了避免重复注册定时器，重复创建对象，注册定时器的时候，判断一下是否已经注册过了定时器。
             @Override
             public void processElement(WaterSensor value, Context ctx, Collector<String> out) throws Exception {
-                if (value.getVc() > lastWaterSensorValue) {
-                    if (isRegister == 0) {
+                if (isRegister == 0) { //如果还没有注册定时器
+                    ctx.timerService().registerEventTimeTimer(value.getTs() * 1000L + 5000L);
+                    System.out.println("注册定时器时间是: " + new Timestamp(value.getTs() * 1000L));
+                    isRegister = value.getTs().intValue() * 1000 + 5000;
+                } else {
+                    if (value.getVc() <= lastWaterSensorValue) {
+                        //删除之前注册的定时器
+                        ctx.timerService().deleteEventTimeTimer(isRegister);
+                        //重新注册定时器
                         ctx.timerService().registerEventTimeTimer(value.getTs() * 1000L + 5000L);
-                        System.out.println("注册定时器时间是: " + new Timestamp(value.getTs() * 1000L));
+                        System.out.println("重新注册定时器的时间是: " + new Timestamp(value.getTs() * 1000L));
                         isRegister = value.getTs().intValue() * 1000 + 5000;
                     }
-                } else {
-                    //删除之前注册的定时器
-                    ctx.timerService().deleteEventTimeTimer(isRegister);
-                    //重新注册定时器
-                    ctx.timerService().registerEventTimeTimer(value.getTs() * 1000L + 5000L);
-                    System.out.println("重新注册定时器的时间是: " + new Timestamp(value.getTs() * 1000L));
-                    isRegister = value.getTs().intValue() * 1000 + 5000;
                 }
                 //不管上升还是下降，都要保存水位值，供下条数据使用，进行比较
                 lastWaterSensorValue = value.getVc();
