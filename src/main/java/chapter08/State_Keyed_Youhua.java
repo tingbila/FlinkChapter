@@ -48,7 +48,8 @@ public class State_Keyed_Youhua {
 
             @Override
             public void open(Configuration parameters) throws Exception {
-                //值状态初始化lastVc = getRuntimeContext().getState(new ValueStateDescriptor<Integer>("lastVc",Integer.class,0));
+                //值状态初始化
+                lastVc = getRuntimeContext().getState(new ValueStateDescriptor<Integer>("lastVc",Integer.class,0));
             }
 
             @Override
