@@ -19,7 +19,6 @@ import java.sql.Timestamp;
 
 //keyed-state之间状态进行隔离
 
-
 public class State_Keyed_Youhua {
     public static void main(String[] args) throws Exception {
         // get the execution environment
@@ -45,12 +44,11 @@ public class State_Keyed_Youhua {
         mapDataStream.print();
         KeyedStream<WaterSensor, String> keyedStream = mapDataStream.keyBy(value -> value.getId());
         DataStream<String> processDataStream = keyedStream.process(new KeyedProcessFunction<String, WaterSensor, String>() {
-            private ValueState<Integer> lastVc;  //此时lastVc多个key所共享
+            private ValueState<Integer> lastVc;  //key之间实现了状态隔离
 
             @Override
             public void open(Configuration parameters) throws Exception {
-                //值状态初始化
-                lastVc = getRuntimeContext().getState(new ValueStateDescriptor<Integer>("lastVc",Integer.class,0));
+                //值状态初始化lastVc = getRuntimeContext().getState(new ValueStateDescriptor<Integer>("lastVc",Integer.class,0));
             }
 
             @Override
