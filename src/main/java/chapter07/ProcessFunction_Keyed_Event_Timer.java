@@ -49,8 +49,8 @@ public class ProcessFunction_Keyed_Event_Timer {
             //只有当算子的watermark的时间大于定时器的时间，才会触发定时器。
             @Override
             public void processElement(WaterSensor value, Context ctx, Collector<String> out) throws Exception {
-                System.out.println("当前event时间是: " + new Timestamp(value.getTs()*1000));
-                ctx.timerService().registerEventTimeTimer(value.getTs()*1000 + 5000);
+                System.out.println("当前event时间是: " + new Timestamp(value.getTs() * 1000));
+                ctx.timerService().registerEventTimeTimer(value.getTs() * 1000 + 5000);
             }
 
             /**

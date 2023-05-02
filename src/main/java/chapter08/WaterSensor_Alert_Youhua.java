@@ -64,7 +64,7 @@ public class WaterSensor_Alert_Youhua {
             //为了避免重复注册定时器，重复创建对象，注册定时器的时候，判断一下是否已经注册过了定时器。
             @Override
             public void processElement(WaterSensor value, Context ctx, Collector<String> out) throws Exception {
-                if (isRegister.value() == 0) { //如果还没有注册定时器
+                if (isRegister.value() == 0) { //如果当前key还没有注册定时器
                     ctx.timerService().registerEventTimeTimer(value.getTs() * 1000L + 5000L);
                     System.out.println("注册定时器时间是: " + new Timestamp(value.getTs() * 1000L));
                     isRegister.update(value.getTs() * 1000L + 5000L);
