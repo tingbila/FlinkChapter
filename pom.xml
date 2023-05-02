@@ -82,6 +82,13 @@
             <version>5.1.38</version>
         </dependency>
 
+        <!-- statebackend-rocksdb添加依赖 -->
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-statebackend-rocksdb_${scala.binary.version}</artifactId>
+            <version>${flink.version}</version>
+        </dependency>
+
         <!-- other 依赖-->
         <dependency>
             <groupId>junit</groupId>
