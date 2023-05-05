@@ -47,6 +47,7 @@ public class ProcessFunction_SideOutput {
         mapDataStream.print();
         KeyedStream<WaterSensor, String> keyedStream = mapDataStream.keyBy(value -> value.getId());
 
+        //outputTag – the OutputTag that identifies the side output to emit to.
         OutputTag<String> outputTag = new OutputTag<String>("WaterSensor Alarm") {};
         SingleOutputStreamOperator<WaterSensor> processDataStream = keyedStream.process(new KeyedProcessFunction<String, WaterSensor, WaterSensor>() {
             @Override
