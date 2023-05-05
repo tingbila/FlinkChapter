@@ -26,7 +26,6 @@ public class ProcessFunction_SideOutput {
         Configuration conf = new Configuration();
         conf.set(RestOptions.PORT, 8083);
         StreamExecutionEnvironment env = StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(conf);
-        env.setParallelism(1);
         env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
 
         // get input data by connecting to the socket
@@ -48,7 +47,8 @@ public class ProcessFunction_SideOutput {
         KeyedStream<WaterSensor, String> keyedStream = mapDataStream.keyBy(value -> value.getId());
 
         //outputTag – the OutputTag that identifies the side output to emit to.
-        OutputTag<String> outputTag = new OutputTag<String>("WaterSensor Alarm") {};
+        OutputTag<String> outputTag = new OutputTag<String>("WaterSensor Alarm") {
+        };
         SingleOutputStreamOperator<WaterSensor> processDataStream = keyedStream.process(new KeyedProcessFunction<String, WaterSensor, WaterSensor>() {
             @Override
             public void processElement(WaterSensor value, Context ctx, Collector<WaterSensor> out) throws Exception {
