@@ -62,7 +62,7 @@ public class KeyedProcessFunctionProcessTimer {
              */
             @Override
             public void onTimer(long timestamp, OnTimerContext ctx, Collector<String> out) throws Exception {
-                System.out.println("主人,主人,主人...快起床了,当前时间是:" + new Timestamp(timestamp));
+                System.out.println("主人,主人,主人...闹钟响了,当前时间是:" + new Timestamp(timestamp));
             }
         });
 
