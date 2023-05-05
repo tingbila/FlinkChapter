@@ -1,30 +1,23 @@
 package chapter07;
 
 import bean.WaterSensor;
-import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.common.functions.RichMapFunction;
-import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.RestOptions;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.KeyedStream;
-import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
-import org.apache.flink.streaming.api.datastream.WindowedStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.KeyedProcessFunction;
 import org.apache.flink.streaming.api.functions.timestamps.BoundedOutOfOrdernessTimestampExtractor;
-import org.apache.flink.streaming.api.functions.windowing.ProcessWindowFunction;
 import org.apache.flink.streaming.api.windowing.time.Time;
-import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.util.Collector;
 
 import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 
 //系统时间-Timer定时器-测试案例
 
-public class ProcessFunction_Keyed_Process_Timer {
+public class KeyedProcessFunctionProcessTimer {
     public static void main(String[] args) throws Exception {
         // get the execution environment
         Configuration conf = new Configuration();
@@ -73,7 +66,7 @@ public class ProcessFunction_Keyed_Process_Timer {
             }
         });
 
-        env.execute("ProcessFunction_Keyed_Process_Timer");
+        env.execute("KeyedProcessFunctionProcessTimer");
     }
 }
 

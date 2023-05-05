@@ -10,7 +10,7 @@ public class Source_File {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setParallelism(1);
 
-        DataStreamSource<String> fileDS = env.readTextFile("D:\\workspace\\idea_location\\FlinkChapter\\input\\UserBehavior.log");
+        DataStreamSource<String> fileDS = env.readTextFile("D:\\workspace\\idea_location\\FlinkChapter\\input\\UserBehavior.txt");
 
         fileDS.print();
 

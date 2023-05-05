@@ -13,7 +13,7 @@ public class Transform_Map {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
         // 1.从文件读取数据
-        DataStreamSource<String> inputDS = env.readTextFile("D:\\workspace\\idea_location\\FlinkChapter\\input\\UserBehavior.log");
+        DataStreamSource<String> inputDS = env.readTextFile("D:\\workspace\\idea_location\\FlinkChapter\\input\\UserBehavior.txt");
 
         // 2.Transform: Map转换成实体对象
         SingleOutputStreamOperator<UserBehavior> sensorDS = inputDS.map(new MyMapFunction());

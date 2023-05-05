@@ -3,7 +3,6 @@ package chapter07;
 
 import bean.WaterSensor;
 import org.apache.flink.api.common.functions.RichMapFunction;
-import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.RestOptions;
 import org.apache.flink.streaming.api.TimeCharacteristic;
@@ -17,10 +16,8 @@ import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.util.Collector;
 import org.apache.flink.util.OutputTag;
 
-import java.sql.Timestamp;
-
 // 案例：采集监控传感器水位值，将水位值高于100的值输出到side output。
-public class ProcessFunction_SideOutput {
+public class ProcessFunctionSideOutput {
     public static void main(String[] args) throws Exception {
         // get the execution environment
         Configuration conf = new Configuration();
