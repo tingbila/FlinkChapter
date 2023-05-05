@@ -53,13 +53,6 @@ public class KeyedProcessFunctionProcessTimer {
                 ctx.timerService().registerProcessingTimeTimer(currentProcessingTime + 5000);
             }
 
-            /**
-             * 到了定时的时间要干什么事情
-             * @param timestamp   定时器设置的时间,可以理解为闹钟响的时间.
-             * @param ctx
-             * @param out
-             * @throws Exception
-             */
             @Override
             public void onTimer(long timestamp, OnTimerContext ctx, Collector<String> out) throws Exception {
                 System.out.println("主人,主人,主人...闹钟响了,当前时间是:" + new Timestamp(timestamp));
