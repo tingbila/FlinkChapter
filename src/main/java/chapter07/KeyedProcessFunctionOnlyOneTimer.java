@@ -49,7 +49,6 @@ public class KeyedProcessFunctionOnlyOneTimer {
         DataStream<String> processDataStream = keyedStream.process(new KeyedProcessFunction<String, WaterSensor, String>() {
             private Long triggerTs = 0L;
 
-            //来一条数据，处理一条数据，类比MR当中Mapper当中的map方法.
             //在这里需要注意的是:在这里设置的定时器是系统时间的定时器，虽然时间语义是eventTime，但是只要系统时间到达了，就会触发，和eventTime没有关系。
             //为了避免重复注册定时器，重复创建对象，注册定时器的时候，判断一下是否已经注册过了定时器。
             @Override
@@ -60,6 +59,8 @@ public class KeyedProcessFunctionOnlyOneTimer {
                     System.out.println("当前系统时间是: " + new Timestamp(currentProcessingTime));
                     ctx.timerService().registerProcessingTimeTimer(currentProcessingTime + 5000);
                     triggerTs = currentProcessingTime;
+                }else{
+                    System.out.println("当前已经注册过定时器,不在进行注册!!!!!!");
                 }
             }
 
