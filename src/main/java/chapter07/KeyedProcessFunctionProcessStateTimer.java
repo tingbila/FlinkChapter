@@ -24,7 +24,7 @@ public class KeyedProcessFunctionProcessStateTimer {
         conf.set(RestOptions.PORT, 8083);
         StreamExecutionEnvironment env = StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(conf);
         env.setParallelism(1);
-        env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
+        env.setStreamTimeCharacteristic(TimeCharacteristic.ProcessingTime);
 
         // get input data by connecting to the socket
         DataStream<String> dataStreamSource = env.socketTextStream("localhost", 9999, "\n");
