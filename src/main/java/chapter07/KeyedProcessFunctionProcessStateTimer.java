@@ -54,18 +54,20 @@ public class KeyedProcessFunctionProcessStateTimer {
             @Override
             public void processElement(WaterSensor value, Context ctx, Collector<String> out) throws Exception {
                 long currentProcessingTime = ctx.timerService().currentProcessingTime();
+                String key = ctx.getCurrentKey();
                 Long triggerTs = timerState.value();
                 if (triggerTs == null) {
                     ctx.timerService().registerProcessingTimeTimer(currentProcessingTime + 5000);
                     timerState.update(currentProcessingTime);
                 } else {
-                    System.out.println("already has a timer registered");
+                    System.out.println("key = " + key + " already has a timer registered");
                 }
             }
 
             @Override
             public void onTimer(long timestamp, OnTimerContext ctx, Collector<String> out) throws Exception {
-                System.out.println("timer fired at " + new Timestamp(timestamp));
+                String key = ctx.getCurrentKey();
+                System.out.println("key = " + key + ", timer fired at " + new Timestamp(timestamp));
                 timerState.clear();
             }
         });
