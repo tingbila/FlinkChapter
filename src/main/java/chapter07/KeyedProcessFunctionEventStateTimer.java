@@ -55,7 +55,6 @@ public class KeyedProcessFunctionEventStateTimer {
                 triggerTs = getRuntimeContext().getState(new ValueStateDescriptor<Long>("valueState", Long.class, 0L));
             }
 
-
             //只有当算子的watermark的时间大于定时器的时间，才会触发定时器。
             //为了避免重复注册定时器，重复创建对象，注册定时器的时候，判断一下是否已经注册过了定时器。
             //triggerTs.value()和 triggerTs.update 底层调用类似HashMap的代码,和key进行绑定
