@@ -1,9 +1,5 @@
 package chapter07;
 
-//系统时间-Timer定时器.
-//我们应该在程序里面通过标志位来控制一个key最多只对应一个定时器！！
-//缺陷1:不同key对应的状态state没有隔离.
-
 
 import bean.WaterSensor;
 import org.apache.flink.api.common.functions.RichMapFunction;
@@ -20,7 +16,10 @@ import org.apache.flink.util.Collector;
 
 import java.sql.Timestamp;
 
-public class ProcessFunction_Keyed_Process_OnlyOne_Timer {
+//需求：监控温度传感器的温度值，如果传感器温度值在5秒钟之内(event time)连续上升，则报警
+//watermark和分组没有关系
+//深究的话程序还有很多问题!!!!!
+public class WaterSensorAlert {
     public static void main(String[] args) throws Exception {
         // get the execution environment
         Configuration conf = new Configuration();
@@ -44,23 +43,35 @@ public class ProcessFunction_Keyed_Process_OnlyOne_Timer {
             }
         });
 
-        mapDataStream.print();
+        //mapDataStream.print();
         KeyedStream<WaterSensor, String> keyedStream = mapDataStream.keyBy(value -> value.getId());
         DataStream<String> processDataStream = keyedStream.process(new KeyedProcessFunction<String, WaterSensor, String>() {
-            private Long triggerTs = 0L;
+            //定义一个变量，保存上一次的水位值.
+            private Integer lastWaterSensorValue = Integer.MIN_VALUE;
+            //定义一个变量，用来记录是否已经注册过定时器.
+            private Long isRegister = 0L;  //这里用Integer会有问题。。。需要和注册时的类型保持一致..
 
             //来一条数据，处理一条数据，类比MR当中Mapper当中的map方法.
-            //在这里需要注意的是:在这里设置的定时器是系统时间的定时器，虽然时间语义是eventTime，但是只要系统时间到达了，就会触发，和eventTime没有关系。
+            //只有当算子的watermark的时间大于定时器的时间，才会触发定时器。
             //为了避免重复注册定时器，重复创建对象，注册定时器的时候，判断一下是否已经注册过了定时器。
             @Override
             public void processElement(WaterSensor value, Context ctx, Collector<String> out) throws Exception {
-                //为了避免重复注册定时器，重复创建对象，注册定时器的时候，判断一下是否已经注册过了定时器。
-                if (triggerTs == 0) {
-                    long currentProcessingTime = ctx.timerService().currentProcessingTime();
-                    System.out.println("当前系统时间是: " + new Timestamp(currentProcessingTime));
-                    ctx.timerService().registerProcessingTimeTimer(currentProcessingTime + 5000);
-                    triggerTs = currentProcessingTime;
+                if (isRegister == 0) { //如果还没有注册定时器
+                    ctx.timerService().registerEventTimeTimer(value.getTs() * 1000L + 5000L);
+                    System.out.println("注册定时器时间是: " + new Timestamp(value.getTs() * 1000L));
+                    isRegister = value.getTs() * 1000L + 5000L;
+                } else {
+                    if (value.getVc() <= lastWaterSensorValue) {
+                        //删除之前注册的定时器
+                        ctx.timerService().deleteEventTimeTimer(isRegister);
+                        //重新注册定时器
+                        ctx.timerService().registerEventTimeTimer(value.getTs() * 1000L + 5000L);
+                        System.out.println("重新注册定时器的时间是: " + new Timestamp(value.getTs() * 1000L));
+                        isRegister = value.getTs() * 1000L + 5000L;
+                    }
                 }
+                //不管上升还是下降，都要保存水位值，供下条数据使用，进行比较
+                lastWaterSensorValue = value.getVc();
             }
 
             /**
@@ -72,11 +83,13 @@ public class ProcessFunction_Keyed_Process_OnlyOne_Timer {
              */
             @Override
             public void onTimer(long timestamp, OnTimerContext ctx, Collector<String> out) throws Exception {
-                System.out.println("主人,主人,主人...快起床了,当前时间是:" + new Timestamp(timestamp));
-                triggerTs = 0L;
+                //定时器触发，说明已经满足连续5秒水位上升
+                System.out.println("主人,主人,主人...监测到水位连续5s上升,当前时间是:" + new Timestamp(timestamp) + "触发的watermark时间是: " + ctx.timerService().currentWatermark());
+                //定时器触发完之后恢复初始化状态
+                isRegister = 0L;
             }
         });
 
-        env.execute("ProcessFunction_Keyed_Process_OnlyOne_Timer");
+        env.execute("WaterSensorAlert");
     }
 }

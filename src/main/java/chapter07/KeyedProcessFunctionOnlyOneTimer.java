@@ -1,13 +1,12 @@
 package chapter07;
 
-//EventTime时间-Timer定时器-测试案例
+//系统时间-Timer定时器.
 //我们应该在程序里面通过标志位来控制一个key最多只对应一个定时器！！
-//优化点:解决不同key对应的状态state隔离的问题.
+//缺陷1:不同key对应的状态state没有隔离.
+
 
 import bean.WaterSensor;
 import org.apache.flink.api.common.functions.RichMapFunction;
-import org.apache.flink.api.common.state.ValueState;
-import org.apache.flink.api.common.state.ValueStateDescriptor;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.RestOptions;
 import org.apache.flink.streaming.api.TimeCharacteristic;
@@ -21,7 +20,7 @@ import org.apache.flink.util.Collector;
 
 import java.sql.Timestamp;
 
-public class ProcessFunction_Keyed_Process_OnlyOne_Youhua_Timer {
+public class KeyedProcessFunctionOnlyOneTimer {
     public static void main(String[] args) throws Exception {
         // get the execution environment
         Configuration conf = new Configuration();
@@ -48,26 +47,19 @@ public class ProcessFunction_Keyed_Process_OnlyOne_Youhua_Timer {
         mapDataStream.print();
         KeyedStream<WaterSensor, String> keyedStream = mapDataStream.keyBy(value -> value.getId());
         DataStream<String> processDataStream = keyedStream.process(new KeyedProcessFunction<String, WaterSensor, String>() {
-            private ValueState<Long> triggerTs = null; //每个key拥有隔离的valueState
-
-            @Override
-            public void open(Configuration parameters) throws Exception {
-                triggerTs = getRuntimeContext().getState(new ValueStateDescriptor<Long>("valueState", Long.class, 0L));
-            }
-
+            private Long triggerTs = 0L;
 
             //来一条数据，处理一条数据，类比MR当中Mapper当中的map方法.
-            //只有当算子的watermark的时间大于定时器的时间，才会触发定时器。
+            //在这里需要注意的是:在这里设置的定时器是系统时间的定时器，虽然时间语义是eventTime，但是只要系统时间到达了，就会触发，和eventTime没有关系。
             //为了避免重复注册定时器，重复创建对象，注册定时器的时候，判断一下是否已经注册过了定时器。
-            //triggerTs.value()和 triggerTs.update 底层调用类似HashMap的代码,和key进行绑定
             @Override
             public void processElement(WaterSensor value, Context ctx, Collector<String> out) throws Exception {
                 //为了避免重复注册定时器，重复创建对象，注册定时器的时候，判断一下是否已经注册过了定时器。
-                if (triggerTs.value() == 0) {   //value = triggerTs.stateTable.get(this.keyContext.getCurrentKey(), this.keyContext.getCurrentKeyGroupIndex(), namespace)
-                    Long currentEventTime = value.getTs() * 1000;
-                    System.out.println("当前event时间是: " + new Timestamp(currentEventTime));
-                    ctx.timerService().registerEventTimeTimer(currentEventTime + 5000);
-                    triggerTs.update(currentEventTime);  //triggerTs.stateTable.put(this.keyContext.getCurrentKey(), this.keyContext.getCurrentKeyGroupIndex(), namespace, value)
+                if (triggerTs == 0) {
+                    long currentProcessingTime = ctx.timerService().currentProcessingTime();
+                    System.out.println("当前系统时间是: " + new Timestamp(currentProcessingTime));
+                    ctx.timerService().registerProcessingTimeTimer(currentProcessingTime + 5000);
+                    triggerTs = currentProcessingTime;
                 }
             }
 
@@ -80,12 +72,11 @@ public class ProcessFunction_Keyed_Process_OnlyOne_Youhua_Timer {
              */
             @Override
             public void onTimer(long timestamp, OnTimerContext ctx, Collector<String> out) throws Exception {
-                System.out.println("主人,主人,主人...快起床了,当前时间是:" + new Timestamp(timestamp) + "触发的watermark时间是: " + ctx.timerService().currentWatermark());
-                //定时器触发完之后恢复初始化状态
-                triggerTs.update(0L);
+                System.out.println("主人,主人,主人...快起床了,当前时间是:" + new Timestamp(timestamp));
+                triggerTs = 0L;
             }
         });
 
-        env.execute("ProcessFunction_Keyed_Process_OnlyOne_Youhua_Timer");
+        env.execute("KeyedProcessFunctionOnlyOneTimer");
     }
 }
