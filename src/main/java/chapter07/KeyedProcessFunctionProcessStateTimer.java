@@ -27,7 +27,7 @@ public class KeyedProcessFunctionProcessStateTimer {
         env.setStreamTimeCharacteristic(TimeCharacteristic.ProcessingTime);
 
         // get input data by connecting to the socket
-        DataStream<String> dataStreamSource = env.socketTextStream("localhost", 9999, "\n");
+        DataStream<String> dataStreamSource = env.socketTextStream("192.168.40.101", 9999, "\n");
         DataStream<WaterSensor> mapDataStream = dataStreamSource.map(new RichMapFunction<String, WaterSensor>() {
             @Override
             public WaterSensor map(String line) throws Exception {
@@ -57,7 +57,9 @@ public class KeyedProcessFunctionProcessStateTimer {
                 String key = ctx.getCurrentKey();
                 Long triggerTs = timerState.value();
                 if (triggerTs == null) {
-                    ctx.timerService().registerProcessingTimeTimer(currentProcessingTime + 5000);
+                    System.out.println("当前系统时间是: " + new Timestamp(currentProcessingTime));
+                    long time = currentProcessingTime + 5000;
+                    ctx.timerService().registerProcessingTimeTimer(time);
                     timerState.update(currentProcessingTime);
                 } else {
                     System.out.println("key = " + key + " already has a timer registered");
