@@ -18,7 +18,7 @@ import org.apache.flink.util.Collector;
 
 import java.sql.Timestamp;
 
-public class ProcessFunction_Keyed_Event_Timer {
+public class KeyedProcessFunctionEventTimer {
     public static void main(String[] args) throws Exception {
         // get the execution environment
         Configuration conf = new Configuration();
@@ -59,6 +59,6 @@ public class ProcessFunction_Keyed_Event_Timer {
             }
         });
 
-        env.execute("ProcessFunction_Keyed_Event_Timer");
+        env.execute("KeyedProcessFunctionEventTimer");
     }
 }
