@@ -55,12 +55,12 @@ public class KeyedProcessFunctionProcessStateTimer {
             public void processElement(WaterSensor value, Context ctx, Collector<String> out) throws Exception {
                 long currentProcessingTime = ctx.timerService().currentProcessingTime();
                 String key = ctx.getCurrentKey();
-                Long triggerTs = timerState.value();
+                Long triggerTs = timerState.value();  //timeState.hashMap.get(key)
                 if (triggerTs == null) {
                     System.out.println("当前系统时间是: " + new Timestamp(currentProcessingTime));
-                    long time = currentProcessingTime + 5000;
+                    long time = currentProcessingTime + 500000;
                     ctx.timerService().registerProcessingTimeTimer(time);
-                    timerState.update(currentProcessingTime);
+                    timerState.update(currentProcessingTime);  //timeState.hashMap.put(key, value);
                 } else {
                     System.out.println("key = " + key + " already has a timer registered");
                 }
@@ -70,7 +70,7 @@ public class KeyedProcessFunctionProcessStateTimer {
             public void onTimer(long timestamp, OnTimerContext ctx, Collector<String> out) throws Exception {
                 String key = ctx.getCurrentKey();
                 System.out.println("key = " + key + ", timer fired at " + new Timestamp(timestamp));
-                timerState.clear();
+                timerState.clear();   //timeState.hashMap.remove(key);
             }
         });
 
