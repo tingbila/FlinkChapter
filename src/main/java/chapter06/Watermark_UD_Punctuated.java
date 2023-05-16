@@ -57,6 +57,7 @@ public class Watermark_UD_Punctuated {
             @Override
             public long extractTimestamp(WaterSensor element, long recordTimestamp) {
                 long timestamp = element.getTs() * 1000L;
+                System.out.println(timestamp);
                 if (timestamp > currentMaxTimestamp) {
                     currentMaxTimestamp = timestamp;
                 }
