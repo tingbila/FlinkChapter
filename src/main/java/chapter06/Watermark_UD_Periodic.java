@@ -25,6 +25,8 @@ public class Watermark_UD_Periodic {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(conf);
         env.setParallelism(1);
         env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
+        //每5秒生成一次水位线
+        env.getConfig().setAutoWatermarkInterval(10000);
 
         // get input data by connecting to the socket
         DataStream<String> dataStreamSource = env.socketTextStream("192.168.40.101", 9999, "\n");
@@ -41,6 +43,7 @@ public class Watermark_UD_Periodic {
             private long currentMaxTimestamp = 0;
             private long lastEmittedWatermark = 0;
 
+            //这个方法的调用时间取决于env.getConfig().setAutoWatermarkInterval(x)方法,默认是2秒。
             @Nullable
             @Override
             public Watermark getCurrentWatermark() {
@@ -53,6 +56,7 @@ public class Watermark_UD_Periodic {
                 return new Watermark(lastEmittedWatermark);
             }
 
+            //这个方法每来一条event事件就会调用一次
             @Override
             public long extractTimestamp(WaterSensor element, long recordTimestamp) {
                 long timestamp = element.getTs() * 1000L;
