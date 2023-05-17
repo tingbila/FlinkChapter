@@ -90,7 +90,7 @@ public class WaterSensorAlert {
 
             @Override
             public void onTimer(long timestamp, OnTimerContext ctx, Collector<String> out) throws Exception {
-                //定时器触发
+                //定时器触发,这里面也可以用Collector返回结果
                 System.out.println("Temperature of sensor " + ctx.getCurrentKey() + " monotonically increased for 5 second.");
                 //定时器触发完之后恢复初始化状态
                 isRegister.clear();
