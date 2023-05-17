@@ -57,8 +57,8 @@ public class WaterSensorAlert {
 
             @Override
             public void open(Configuration parameters) throws Exception {
-                lastTemp = getRuntimeContext().getState(new ValueStateDescriptor<Integer>("lastTemp",Integer.class,0));
-                isRegister = getRuntimeContext().getState(new ValueStateDescriptor<Long>("currentTimer",Long.class,0L));
+                lastTemp = getRuntimeContext().getState(new ValueStateDescriptor<Integer>("lastTemp", Integer.class, 0));
+                isRegister = getRuntimeContext().getState(new ValueStateDescriptor<Long>("currentTimer", Long.class, 0L));
             }
 
             @Override
@@ -69,7 +69,7 @@ public class WaterSensorAlert {
                 Long curTimerTimestamp = isRegister.value();
 
                 // 如果当前传感器的温度值等于上一次温度,则直接跳过整次逻辑 eg:1 1 5 6 7 2
-                if (prevTemp == 0 || value.getVc() < prevTemp){
+                if (prevTemp == 0 || value.getVc() < prevTemp) {
                     // 温度下降 删除当前计时器
                     ctx.timerService().deleteProcessingTimeTimer(curTimerTimestamp);
                     isRegister.clear();
