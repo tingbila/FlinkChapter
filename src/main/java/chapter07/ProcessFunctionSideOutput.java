@@ -51,9 +51,8 @@ public class ProcessFunctionSideOutput {
             public void processElement(WaterSensor value, Context ctx, Collector<WaterSensor> out) throws Exception {
                 if (value.getVc() > 100) {
                     ctx.output(outputTag, value.toString() + "水位高于阈值5,请关注！！！");  //侧输出流的元素可以自己定义!!!
-                } else {
-                    out.collect(value);
                 }
+                out.collect(value);
             }
         });
 
