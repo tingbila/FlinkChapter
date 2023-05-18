@@ -4,6 +4,7 @@ import org.apache.flink.api.common.functions.AggregateFunction;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.common.functions.ReduceFunction;
 import org.apache.flink.api.java.tuple.Tuple2;
+import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.KeyedStream;
@@ -17,11 +18,13 @@ import org.apache.flink.util.Collector;
 
 public class Window_IncreAggr {
     public static void main(String[] args) throws Exception {
-        // get the execution environment
-        final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+        Configuration conf = new Configuration();
+        conf.setString("heartbeat.timeout", "18000000");
+
+        // 获取执行环境并设置配置
+        final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment(conf);
         env.setStreamTimeCharacteristic(TimeCharacteristic.ProcessingTime);
         env.setParallelism(1);
-
 
         // get input data by connecting to the socket
         DataStream<String> text = env.socketTextStream("192.168.40.101", 9999, "\n");
@@ -46,7 +49,7 @@ public class Window_IncreAggr {
 
         DataStream<Integer> aggregateDs = dataWS.aggregate(new AggregateFunction<Tuple2<String, Integer>, Integer, Integer>() {
             //初始化  => 初始值 0
-            //注意:这个不是open方法,不是只初始化一次
+            //注意:这个不是open方法,不是只初始化一次,应该是每次窗口重新生成的时候都会重新生成一个Accumulator
             @Override
             public Integer createAccumulator() {
                 return 0;

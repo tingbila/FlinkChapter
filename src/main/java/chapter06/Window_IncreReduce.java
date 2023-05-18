@@ -18,6 +18,7 @@ public class Window_IncreReduce {
         // get the execution environment
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setStreamTimeCharacteristic(TimeCharacteristic.ProcessingTime);
+        env.setParallelism(1);
 
         // get input data by connecting to the socket
         DataStream<String> text = env.socketTextStream("192.168.40.101", 9999, "\n");
@@ -44,6 +45,7 @@ public class Window_IncreReduce {
             @Override
             public Tuple2<String, Integer> reduce(Tuple2<String, Integer> value1, Tuple2<String, Integer> value2) throws Exception {
                 //每来一条数据就进行一次叠加计算,但是最终结果只有在窗口触发时才会最终输出
+
                 System.out.println(value1 + "<---->" + value2);
                 return Tuple2.of(value1.f0, value1.f1 + value2.f1);
             }
