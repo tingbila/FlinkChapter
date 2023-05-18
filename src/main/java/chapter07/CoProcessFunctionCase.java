@@ -27,6 +27,7 @@ import java.util.Properties;
 
 // 根据过滤开关的状态决定是否转发传感器数据，通过设置计时器来控制转发开关的关闭时间。这种机制可以用于动态控制
 // 数据流的处理和过滤，根据特定条件决定哪些数据应该被处理和输出。
+// filterSwithes是一个静态列表，不会再更新数据。这意味着一旦计时器失效并触发关闭转发开关的操作后，无法再重新打开转发开关。
 public class CoProcessFunctionCase {
     public static void main(String[] args) throws Exception {
         Configuration conf = new Configuration();
