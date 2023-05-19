@@ -72,6 +72,4 @@ public class IncrementalAndProcessWindowFunctionCase {
 
         env.execute("Incremental_And_ProcessWindowFunction");
     }
-
-
 }
