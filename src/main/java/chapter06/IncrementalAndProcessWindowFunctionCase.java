@@ -70,6 +70,6 @@ public class IncrementalAndProcessWindowFunctionCase {
 
         processDS.print();
 
-        env.execute("Incremental_And_ProcessWindowFunction");
+        env.execute("IncrementalAndProcessWindowFunctionCase");
     }
 }
