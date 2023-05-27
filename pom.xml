@@ -92,11 +92,6 @@
         <!-- queryable_state -->
         <dependency>
             <groupId>org.apache.flink</groupId>
-            <artifactId>flink-core</artifactId>
-            <version>${flink.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.flink</groupId>
             <artifactId>flink-queryable-state-client-java</artifactId>
             <version>${flink.version}</version>
         </dependency>

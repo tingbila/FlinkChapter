@@ -16,6 +16,7 @@ public class QueryableStateByQueryableStateStream {
         // get the execution environment
         Configuration config = new Configuration();
         config.set(RestOptions.PORT, 8083);
+        //启用Queryable State服务,底层对应的就是:queryable-state.enable
         config.setBoolean(QueryableStateOptions.ENABLE_QUERYABLE_STATE_PROXY_SERVER, true);
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(config);
 
