@@ -19,7 +19,7 @@ import org.apache.flink.streaming.api.functions.ProcessFunction;
 import org.apache.flink.util.Collector;
 
 
-
+//方法2:通过StateDescriptor的setQueryable方法使状态可查
 public class QueryableStateByStateDescriptor {
     public static void main(String[] args) throws Exception {
         // get the execution environment
