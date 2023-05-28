@@ -78,7 +78,8 @@ public class WaterSensoStateChangeAlert {
 
         @Override
         public void open(Configuration parameters) throws Exception {
-            // 创建状态描述符
+            // 创建状态描述符:每个状态原语都有自己特定的StateDescriptor，它里面包含了状态名称和类型。
+            // 状态处理的数据类型可以通过class或TypeInformation对象指定
             ValueStateDescriptor<Integer> descriptor = new ValueStateDescriptor<>("lastTemp", Integer.class, 0);
             // 通过descriptor.setQueryable 开放此状态,使此状态可查询
             descriptor.setQueryable("query-name");
