@@ -32,7 +32,7 @@ public class MyUserBehaviorSource implements SourceFunction<UserBehavior> {
                             behaviorList.get(random.nextInt(behaviorList.size())),
                             System.currentTimeMillis()
                     ));
-            Thread.sleep(1000);
+            Thread.sleep(500);
         }
     }
 

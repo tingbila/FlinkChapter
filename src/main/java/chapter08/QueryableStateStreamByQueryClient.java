@@ -4,6 +4,8 @@ package chapter08;
 import java.util.concurrent.CompletableFuture;
 
 import org.apache.flink.api.common.JobID;
+import org.apache.flink.api.common.state.ListState;
+import org.apache.flink.api.common.state.ListStateDescriptor;
 import org.apache.flink.api.common.state.ValueState;
 import org.apache.flink.api.common.state.ValueStateDescriptor;
 import org.apache.flink.api.common.typeinfo.BasicTypeInfo;
@@ -27,7 +29,7 @@ public class QueryableStateStreamByQueryClient {
         //2. 通过client.getKvState方法来获取具体key对应的value状态信息
         while (true) {
             CompletableFuture<ValueState<Tuple2<String, Integer>>> resultFuture = client.getKvState(
-                    JobID.fromHexString("14835e789fcf6bfcdfbab61e67ac43ba"),
+                    JobID.fromHexString("7351ae75775ec8435fa26b6f83d61ccc"),
                     "query-name",
                     queryKey,
                     BasicTypeInfo.STRING_TYPE_INFO,   //key的类型
