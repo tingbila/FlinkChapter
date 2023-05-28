@@ -20,17 +20,17 @@ public class QueryableStateStreamByQueryClient {
         //1. 提供任意一个TaskManager的主机名以及可查询式状态的代理监听端口,默认监听端口是9069
         QueryableStateClient client = new QueryableStateClient("localhost", 9069);
 
-        String queryKey = "hello";
-        ValueStateDescriptor<Tuple2<String, Integer>> stateDescriptor =
+        String queryKey = "sensor_1";
+        ValueStateDescriptor<Integer> stateDescriptor =
                 new ValueStateDescriptor<>(
-                        "query-name",
-                        TypeInformation.of(new TypeHint<Tuple2<String, Integer>>() {}));  //状态的类型
+                        "lastTemp",  // the state name
+                        Integer.class);    //状态的类型
 
         //2. 通过client.getKvState方法来获取具体key对应的value状态信息
         while (true) {
-            CompletableFuture<ValueState<Tuple2<String, Integer>>> resultFuture = client.getKvState(
-                    JobID.fromHexString("7351ae75775ec8435fa26b6f83d61ccc"),
-                    "query-name",
+            CompletableFuture<ValueState<Integer>> resultFuture = client.getKvState(
+                    JobID.fromHexString("c1eda19d01ee9da6a2c7ba50c8072684"),
+                    "query-name",  // queryable state name
                     queryKey,
                     BasicTypeInfo.STRING_TYPE_INFO,   //key的类型
                     stateDescriptor);
