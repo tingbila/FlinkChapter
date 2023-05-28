@@ -12,11 +12,11 @@ import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.queryablestate.client.QueryableStateClient;
 
-//方式1:通过Queryable State Stream使状态可查
+
 public class QueryableStateStreamByQueryClient {
     public static void main(String[] args) throws Exception {
-        //1. 提供任意一个TaskManager的主机名以及可查询式状态的代理监听端口,默认监听端口是9067
-        QueryableStateClient client = new QueryableStateClient("localhost", 9067);
+        //1. 提供任意一个TaskManager的主机名以及可查询式状态的代理监听端口,默认监听端口是9069
+        QueryableStateClient client = new QueryableStateClient("localhost", 9069);
 
         String queryKey = "hello";
         ValueStateDescriptor<Tuple2<String, Integer>> stateDescriptor =
@@ -27,7 +27,7 @@ public class QueryableStateStreamByQueryClient {
         //2. 通过client.getKvState方法来获取具体key对应的value状态信息
         while (true) {
             CompletableFuture<ValueState<Tuple2<String, Integer>>> resultFuture = client.getKvState(
-                    JobID.fromHexString("707fbba47bdc81404523b70d14001831"),
+                    JobID.fromHexString("14835e789fcf6bfcdfbab61e67ac43ba"),
                     "query-name",
                     queryKey,
                     BasicTypeInfo.STRING_TYPE_INFO,   //key的类型
