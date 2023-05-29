@@ -24,7 +24,8 @@ import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.util.Collector;
 
 
-// 以下代码展示了传感器在检测到相邻温度值变化超过给定阈值时发出警报。
+// 对每个传感器进行状态计算,如果某个传感器上报的次数达到2次,将对这2次传感器水位线求平均值，然后状态清零。
+// Once the count reaches 2 it will emit the waterSensor average and clear the state
 public class CountWindowAverageState {
     public static void main(String[] args) throws Exception {
         // get the execution environment
@@ -62,43 +63,50 @@ public class CountWindowAverageState {
         env.execute("WaterSensoStateChangeAlert");
     }
 
-    //在键值分区数据流上应用一个有状态的FlatMapFunction来比较读数并发出警报
+
     //使用键值分区状态的函数必须作用在KeyedStream上，即在应用函数之前需要在输入流上调用keyBy()方法来指定键值。对于一个作用在键值分区输入上
     //的函数而言，Flink运行时在调用它的处理方法时，会自动将函数中的键值分区状态对象放入到当前处理记录的键值上下文中。这样，函数每次只能访问
     //属于当前处理记录的键值的状态,注意:下面必须用RichFlatMapFunction,不能用FlatMapFunction
-    public static class TemperatureAlertFunction extends RichFlatMapFunction<WaterSensor, Tuple3<String, Integer, Integer>> {
-        private Double threshold;  //配置浮动阈值
+    public static class CountWindowAverage extends RichFlatMapFunction<WaterSensor, Tuple2<Integer, Double>> {
+        private Integer threshold;  //配置上报次数
 
-        public TemperatureAlertFunction(Double threshold) {
+        public CountWindowAverage(Integer threshold) {
             this.threshold = threshold;
         }
 
         //状态引用对象
-        private ValueState<Integer> lastTempState;
+        //The ValueState handle. The first field is the count, the second field a running sum.
+        private transient ValueState<Tuple2<Integer, Double>> sum;
 
         @Override
         public void open(Configuration parameters) throws Exception {
             // 创建状态描述符:每个状态原语都有自己特定的StateDescriptor，它里面包含了状态名称和类型。
             // 状态处理的数据类型可以通过class或TypeInformation对象指定
-            ValueStateDescriptor<Integer> descriptor = new ValueStateDescriptor<>("lastTemp", Integer.class, 0);
+            // default value of the state, if nothing was set
+            ValueStateDescriptor<Tuple2<Integer, Double>> descriptor = new ValueStateDescriptor<>("average", TypeInformation.of(new TypeHint<Tuple2<Integer, Double>>() {}), Tuple2.of(0, 0));
             // 通过descriptor.setQueryable 开放此状态,使此状态可查询
             descriptor.setQueryable("query-name");
             // 获得状态引用
-            lastTempState = getRuntimeContext().getState(descriptor);
+            sum = getRuntimeContext().getState(descriptor);
         }
 
         @Override
-        public void flatMap(WaterSensor value, Collector<Tuple3<String, Integer, Integer>> out) throws Exception {
+        public void flatMap(WaterSensor value, Collector<Tuple2<Integer, Double>> out) throws Exception {
             //从状态中获取上一次的温度
-            Integer lastTemp = lastTempState.value();
-            //检查是否需要发出报警
-            int tempDiff = Math.abs(value.getVc() - lastTemp);
-            if (tempDiff > threshold) {
-                //温度超过给定的阈值
-                out.collect(Tuple3.of(value.getId(), value.getVc(), tempDiff));
+            Tuple2<Integer, Double> currentSum = sum.value();
+            // update the count
+            currentSum.f0 += 1;
+            // add the second field of the input value
+            currentSum.f1 += value.getVc();
+
+            // update the state
+            sum.update(currentSum);
+
+            // if the count reaches 2, emit the average and clear the state
+            if (currentSum.f0 >= 2) {
+                out.collect(new Tuple2<>(currentSum.f0, currentSum.f1 / currentSum.f0));
+                sum.clear();
             }
-            //更新lastTemp状态
-            lastTempState.update(value.getVc());
         }
     }
 }
