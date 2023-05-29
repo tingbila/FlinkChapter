@@ -83,7 +83,7 @@ public class CountWindowAverageState {
             // 创建状态描述符:每个状态原语都有自己特定的StateDescriptor，它里面包含了状态名称和类型。
             // 状态处理的数据类型可以通过class或TypeInformation对象指定
             // default value of the state, if nothing was set
-            ValueStateDescriptor<Tuple2<Integer, Double>> descriptor = new ValueStateDescriptor<>("average", TypeInformation.of(new TypeHint<Tuple2<Integer, Double>>() {}), Tuple2.of(0, 0));
+            ValueStateDescriptor<Tuple2<Integer, Double>> descriptor = new ValueStateDescriptor<>("average", TypeInformation.of(new TypeHint<Tuple2<Integer, Double>>() {}), Tuple2.of(0, 0.0));
             // 通过descriptor.setQueryable 开放此状态,使此状态可查询
             descriptor.setQueryable("query-name");
             // 获得状态引用

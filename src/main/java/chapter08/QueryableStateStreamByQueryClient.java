@@ -21,21 +21,27 @@ public class QueryableStateStreamByQueryClient {
         QueryableStateClient client = new QueryableStateClient("localhost", 9069);
 
         String queryKey = "sensor_1";
-        ValueStateDescriptor<Integer> stateDescriptor =
-                new ValueStateDescriptor<>(
-                        "lastTemp",  // the state name
-                        Integer.class);    //状态的类型
+
+        ValueStateDescriptor<Tuple2<Integer, Double>> stateDescriptor = new ValueStateDescriptor<>(
+                "average",  // the state name
+                TypeInformation.of(new TypeHint<Tuple2<Integer, Double>>() {
+                }));//状态的类型
+
 
         //2. 通过client.getKvState方法来获取具体key对应的value状态信息
         while (true) {
-            CompletableFuture<ValueState<Integer>> resultFuture = client.getKvState(
-                    JobID.fromHexString("c1eda19d01ee9da6a2c7ba50c8072684"),
-                    "query-name",  // queryable state name
-                    queryKey,
-                    BasicTypeInfo.STRING_TYPE_INFO,   //key的类型
-                    stateDescriptor);
+            try {
+                CompletableFuture<ValueState<Tuple2<Integer, Double>>> resultFuture = client.getKvState(
+                        JobID.fromHexString("ee09cada35b302fc29572cf976d2947d"),
+                        "query-name",  // queryable state name
+                        queryKey,
+                        BasicTypeInfo.STRING_TYPE_INFO,   // key的类型
+                        stateDescriptor);
 
-            System.out.println(resultFuture.get().value());
+                System.out.println(resultFuture.get().value());
+            } catch (Exception e) {
+                System.out.println("获取状态失败: " + e.getMessage());  //无状态的时候会调用这个方法
+            }
 
             Thread.sleep(1000);
         }
