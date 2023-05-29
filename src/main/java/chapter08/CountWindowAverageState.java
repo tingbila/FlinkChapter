@@ -57,10 +57,10 @@ public class CountWindowAverageState {
         mapDataStream.print();
         KeyedStream<WaterSensor, String> keyedStream = mapDataStream.keyBy(value -> value.getId());  //以传感器id为键值进行分区
 
-        SingleOutputStreamOperator<Tuple3<String, Integer, Integer>> alertStream = keyedStream.flatMap(new TemperatureAlertFunction(1.7));
+        SingleOutputStreamOperator<Tuple2<Integer, Double>> alertStream = keyedStream.flatMap(new CountWindowAverage(2));
         alertStream.print();
 
-        env.execute("WaterSensoStateChangeAlert");
+        env.execute("CountWindowAverageState");
     }
 
 
@@ -110,18 +110,3 @@ public class CountWindowAverageState {
         }
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
