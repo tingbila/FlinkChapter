@@ -21,7 +21,7 @@ import org.apache.flink.util.Collector;
 import java.sql.Timestamp;
 
 // 以下代码展示了如何在一个 KeyedStream 上面使用 KeyedProcessFunction。 该函数对传感器温度进行监测，
-// 如果某个传感器的温度在5秒的处理时间内持续上升则发出警告
+// 如果某个传感器的温度在10秒的处理时间内持续上升则发出警告
 public class WaterSensorAlert {
     public static void main(String[] args) throws Exception {
         Configuration conf = new Configuration();
@@ -50,7 +50,7 @@ public class WaterSensorAlert {
         mapDataStream.print();
         KeyedStream<WaterSensor, String> keyedStream = mapDataStream.keyBy(value -> value.getId());  //以传感器id为键值进行分区
         DataStream<String> processDataStream = keyedStream.process(new KeyedProcessFunction<String, WaterSensor, String>() {
-            // 定义一个变量，保存上一次传感器对应的水位值.
+            // 定义一个变量，保存上一次传感器对应的水位值(正常传感器的温度值应该都是大于0的).
             private ValueState<Integer> lastTemp;
             // 定义一个变量，用来记录是否已经注册过定时器,如果已经注册了定时器，此时变量的数值等于定时器设置的时间戳
             private ValueState<Long> isRegister;
@@ -70,7 +70,7 @@ public class WaterSensorAlert {
 
                 // 如果当前传感器的温度值等于上一次温度,则直接跳过整次逻辑 eg:1 5 6 7 2 6
                 if (prevTemp == 0){
-                    System.out.println(ctx.getCurrentKey() + "首次播报,直接略过!");
+                    System.out.println(ctx.getCurrentKey() + "传感器首次播报数据,直接略过!");
                 }
                 else if (value.getVc() < prevTemp) {
                     // 温度下降 删除当前计时器
@@ -80,7 +80,7 @@ public class WaterSensorAlert {
                 } else if (value.getVc() > prevTemp && curTimerTimestamp == 0) {
                     //温度升高并且还未设置计时器
                     //以当前时间+5秒设置处理时间计时器
-                    long timerTs = ctx.timerService().currentProcessingTime() + 5000;
+                    long timerTs = ctx.timerService().currentProcessingTime() + 10000;
                     ctx.timerService().registerProcessingTimeTimer(timerTs);
                     //记录当前的计时器
                     isRegister.update(timerTs);
@@ -94,7 +94,7 @@ public class WaterSensorAlert {
             @Override
             public void onTimer(long timestamp, OnTimerContext ctx, Collector<String> out) throws Exception {
                 //定时器触发,这里面也可以用Collector返回结果
-                System.out.println("Temperature of sensor " + ctx.getCurrentKey() + " monotonically increased for 5 second.");
+                System.out.println("Temperature of sensor " + ctx.getCurrentKey() + " monotonically increased for 10 second.");
                 //定时器触发完之后恢复初始化状态
                 isRegister.clear();
             }
