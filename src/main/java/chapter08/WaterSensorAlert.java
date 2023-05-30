@@ -68,8 +68,11 @@ public class WaterSensorAlert {
                 // 传感器是否已经注册过定时器
                 Long curTimerTimestamp = isRegister.value();
 
-                // 如果当前传感器的温度值等于上一次温度,则直接跳过整次逻辑 eg:1 1 5 6 7 2
-                if (prevTemp == 0 || value.getVc() < prevTemp) {
+                // 如果当前传感器的温度值等于上一次温度,则直接跳过整次逻辑 eg:1 5 6 7 2 6
+                if (prevTemp == 0){
+                    System.out.println(ctx.getCurrentKey() + "首次播报,直接略过!");
+                }
+                else if (value.getVc() < prevTemp) {
                     // 温度下降 删除当前计时器
                     ctx.timerService().deleteProcessingTimeTimer(curTimerTimestamp);
                     isRegister.clear();
