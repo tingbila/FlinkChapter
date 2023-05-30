@@ -7,6 +7,7 @@ import org.apache.flink.api.common.functions.RichMapFunction;
 import org.apache.flink.api.common.state.ValueState;
 import org.apache.flink.api.common.state.ValueStateDescriptor;
 import org.apache.flink.configuration.Configuration;
+import org.apache.flink.configuration.QueryableStateOptions;
 import org.apache.flink.configuration.RestOptions;
 import org.apache.flink.runtime.taskexecutor.TaskManagerConfiguration;
 import org.apache.flink.streaming.api.TimeCharacteristic;
@@ -24,11 +25,14 @@ import java.sql.Timestamp;
 // 如果某个传感器的温度在10秒的处理时间内持续上升则发出警告
 public class WaterSensorAlert {
     public static void main(String[] args) throws Exception {
-        Configuration conf = new Configuration();
-        conf.setString("heartbeat.timeout", "18000000");
+        // get the execution environment
+        Configuration config = new Configuration();
+        config.set(RestOptions.PORT, 8083);   //为了方便查询本地JobId信息
+        config.setString("heartbeat.timeout", "18000000");
+        //启用Queryable State服务,底层对应的就是:queryable-state.enable
+        config.setBoolean(QueryableStateOptions.ENABLE_QUERYABLE_STATE_PROXY_SERVER, true);
 
-        // 获取执行环境并设置配置
-        final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment(conf);
+        final StreamExecutionEnvironment env = StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(config);
         env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
         env.setParallelism(1);
 
@@ -57,8 +61,13 @@ public class WaterSensorAlert {
 
             @Override
             public void open(Configuration parameters) throws Exception {
-                lastTemp = getRuntimeContext().getState(new ValueStateDescriptor<Integer>("lastTemp", Integer.class, 0));
-                isRegister = getRuntimeContext().getState(new ValueStateDescriptor<Long>("currentTimer", Long.class, 0L));
+                ValueStateDescriptor<Integer> descriptor1 = new ValueStateDescriptor<>("lastTemp", Integer.class, 0);
+                // 通过descriptor.setQueryable 开放此状态,使此状态可查询
+                descriptor1.setQueryable("query-name-1");
+                lastTemp = getRuntimeContext().getState(descriptor1);
+                ValueStateDescriptor<Long> descriptor2 = new ValueStateDescriptor<>("currentTimer", Long.class, 0L);
+                descriptor2.setQueryable("query-name-2");
+                isRegister = getRuntimeContext().getState(descriptor2);
             }
 
             @Override

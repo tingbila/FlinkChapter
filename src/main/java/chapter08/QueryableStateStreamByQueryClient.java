@@ -22,23 +22,30 @@ public class QueryableStateStreamByQueryClient {
 
         String queryKey = "sensor_1";
 
-        ValueStateDescriptor<Tuple2<Integer, Double>> stateDescriptor = new ValueStateDescriptor<>(
-                "average",  // the state name
-                TypeInformation.of(new TypeHint<Tuple2<Integer, Double>>() {
-                }));//状态的类型
-
-
         //2. 通过client.getKvState方法来获取具体key对应的value状态信息
         while (true) {
             try {
-                CompletableFuture<ValueState<Tuple2<Integer, Double>>> resultFuture = client.getKvState(
-                        JobID.fromHexString("ee09cada35b302fc29572cf976d2947d"),
-                        "query-name",  // queryable state name
+                CompletableFuture<ValueState<Integer>> resultFuture1 = client.getKvState(
+                        JobID.fromHexString("f9b447b896d496d8056cdf62e5abe66f"),
+                        "query-name-1",  // queryable state name
                         queryKey,
                         BasicTypeInfo.STRING_TYPE_INFO,   // key的类型
-                        stateDescriptor);
+                        new ValueStateDescriptor<>("lastTemp", Integer.class));   //状态的名称和类型
 
-                System.out.println(resultFuture.get().value());
+                System.out.println(resultFuture1.get().value());
+            } catch (Exception e) {
+                System.out.println("获取状态失败: " + e.getMessage());  //无状态的时候会调用这个方法
+            }
+
+            try {
+                CompletableFuture<ValueState<Long>> resultFuture2 = client.getKvState(
+                        JobID.fromHexString("f9b447b896d496d8056cdf62e5abe66f"),
+                        "query-name-2",  // queryable state name
+                        queryKey,
+                        BasicTypeInfo.STRING_TYPE_INFO,   // key的类型
+                        new ValueStateDescriptor<>("currentTimer", Long.class));   //状态的名称和类型
+
+                System.out.println(resultFuture2.get().value());
             } catch (Exception e) {
                 System.out.println("获取状态失败: " + e.getMessage());  //无状态的时候会调用这个方法
             }
