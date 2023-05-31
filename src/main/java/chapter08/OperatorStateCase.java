@@ -107,6 +107,8 @@ public class OperatorStateCase {
 
         //initializeState方法会在初始化函数状态时调用，该过程可能发生在作业启动（无论是否从保存点启动）或故障恢复的情况下被回调，进而恢复算子状态。
         //初始化时会调用这个方法，向本地状态中填充数据（任务重启的时候也可能会调用这个方法）
+        //we use the isRestored() method of the context to check if we are recovering after a failure. If this is true,
+        //i.e. we are recovering, the restore logic is applied.
         @Override
         public void initializeState(FunctionInitializationContext context) throws Exception {
             ListStateDescriptor<WaterSensor> descriptor = new ListStateDescriptor<>("buffered-elements", TypeInformation.of(WaterSensor.class));
