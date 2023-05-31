@@ -62,7 +62,7 @@ public class OperatorStateCase {
 
         mapDataStream.print();
 
-        SingleOutputStreamOperator<WaterSensor> flattedMapStream = mapDataStream.flatMap(new BufferingElement(5));
+        SingleOutputStreamOperator<WaterSensor> flattedMapStream = mapDataStream.flatMap(new BufferingElement(3));
         flattedMapStream.print();
 
         env.execute("OperatorStateCase");
@@ -86,7 +86,10 @@ public class OperatorStateCase {
             if (bufferedElements.size() == threshold) {
                 for (WaterSensor element : bufferedElements) {
                     // send it to the sink
+                    System.out.println("---------------start--------------->");
+                    System.out.println(getRuntimeContext().getIndexOfThisSubtask());
                     out.collect(element);
+                    System.out.println("<---------------end---------------");
                 }
                 bufferedElements.clear();
             }
