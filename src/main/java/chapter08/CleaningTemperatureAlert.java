@@ -58,7 +58,7 @@ public class CleaningTemperatureAlert {
         mapDataStream.print();
         KeyedStream<WaterSensor, String> keyedStream = mapDataStream.keyBy(value -> value.getId());  //以传感器id为键值进行分区
 
-        SingleOutputStreamOperator<Tuple3<String, Integer, Integer>> processData = keyedStream.process(new SelfCleaningTemperatureAlert(10));
+        DataStream<Tuple3<String, Integer, Integer>> processData = keyedStream.process(new SelfCleaningTemperatureAlert(10));
         processData.print();
 
         env.execute("CleaningTemperatureAlert");
