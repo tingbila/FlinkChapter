@@ -66,7 +66,6 @@ public class CleaningTemperatureAlert {
 
     public static class SelfCleaningTemperatureAlert extends KeyedProcessFunction<String, WaterSensor, Tuple3<String, Integer, Integer>> {
         private Integer threshold;  //配置告警阈值
-
         public SelfCleaningTemperatureAlert(Integer threshold) {
             this.threshold = threshold;
         }
