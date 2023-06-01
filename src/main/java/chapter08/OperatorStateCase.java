@@ -97,11 +97,12 @@ public class OperatorStateCase {
 
         //snapshotState方法会在执行checkpoint的时候被回调.
         //Checkpoint时会调用这个方法，我们要实现具体的snapshot逻辑，比如将哪些本地状态数据持久化
+        //snapshotState()会先清除前一个CheckPoint包含的所有对象，然后向checkpointedState中添加新一次CheckPoint要保存的对象。
         @Override
         public void snapshotState(FunctionSnapshotContext context) throws Exception {
             checkpointedState.clear();
             for (WaterSensor element : bufferedElements) {
-                checkpointedState.add(element);
+                checkpointedState.add(element); //向状态中添加缓存元素
             }
         }
 
@@ -111,10 +112,13 @@ public class OperatorStateCase {
         //i.e. we are recovering, the restore logic is applied.
         @Override
         public void initializeState(FunctionInitializationContext context) throws Exception {
+            //operator state的初始化和keyed state是很相似的。同样是通过初始化一个StateDescriptor实例。
             ListStateDescriptor<WaterSensor> descriptor = new ListStateDescriptor<>("buffered-elements", TypeInformation.of(WaterSensor.class));
             checkpointedState = context.getOperatorStateStore().getListState(descriptor);
+            //创建一个union list state
+            //checkpointedState = context.getOperatorStateStore().getUnionListState(descriptor);
 
-            if (context.isRestored()) {
+            if (context.isRestored()) {  //状态是否是从之前的快照进行恢复的（比如应用程序崩溃失败之后）
                 for (WaterSensor element : checkpointedState.get()) {
                     bufferedElements.add(element);  //恢复算子的状态,向本地状态中填充数据
                 }
