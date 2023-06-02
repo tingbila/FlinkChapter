@@ -26,7 +26,7 @@ import org.apache.flink.util.Collector;
 import java.sql.Timestamp;
 
 //通过KeyedProcessFunction对两个连续的温度测量值进行比较，如果二者的差值大于一个特定的阈值就会发出警报，
-//同时KeyedProcessFunction会在某一键值超过1小时（事件时间）都没有新到的温度测量数据时将其对应的状态清除。
+//同时KeyedProcessFunction会在某一键值超过60秒（事件时间）都没有新到的温度测量数据时将其对应的状态清除。
 public class CleaningTemperatureAlert {
     public static void main(String[] args) throws Exception {
         // get the execution environment
@@ -92,7 +92,7 @@ public class CleaningTemperatureAlert {
             Long curTimerTimestamp = lastTimerState.value();
             ctx.timerService().deleteEventTimeTimer(curTimerTimestamp);
             // 设置新的计时器（比当前记录时间戳晚一小时的时间）
-            long newTimer = ctx.timestamp() + (3600 * 1000);
+            long newTimer = ctx.timestamp() + (60 * 1000);
             ctx.timerService().registerEventTimeTimer(newTimer);
             // 更新最新传感器定时器的时间戳
             lastTimerState.update(newTimer);
