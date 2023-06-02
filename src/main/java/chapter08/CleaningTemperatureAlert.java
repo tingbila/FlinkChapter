@@ -25,8 +25,8 @@ import org.apache.flink.util.Collector;
 
 import java.sql.Timestamp;
 
-//通过KeyedProcessFunction对两个连续的温度测量值进行比较，如果二者的差值大于一个特定的阈值就会发出警报，
-//同时KeyedProcessFunction会在某一键值超过60秒（事件时间）都没有新到的温度测量数据时将其对应的状态清除。
+//通过KeyedProcessFunction对两个连续的传感器测量值进行比较，如果二者的差值大于一个特定的阈值就会发出警报，
+//同时KeyedProcessFunction会在某一键值超过60秒（事件时间）都没有新到的传感器测量数据时将其对应的状态清除。
 public class CleaningTemperatureAlert {
     public static void main(String[] args) throws Exception {
         // get the execution environment
@@ -70,7 +70,7 @@ public class CleaningTemperatureAlert {
             this.threshold = threshold;
         }
 
-        // 定义一个变量，保存上一次传感器对应的水位值(正常传感器的温度值应该都是大于0的).
+        // 定义一个变量，保存上一次传感器对应的水位值(正常传感器的传感器值应该都是大于0的).
         private ValueState<Integer> lastWaterSensorVc;
         // 定义一个变量，用来记录是否已经注册过定时器,如果已经注册了定时器，此时变量的数值等于定时器设置的时间戳
         private ValueState<Long> lastTimerState;
@@ -86,6 +86,8 @@ public class CleaningTemperatureAlert {
             lastTimerState = getRuntimeContext().getState(descriptor2);
         }
 
+        //该方法会通过删除已有计时器并注册新计时器的方法达到“延期清理”的目的。
+        //清理时间被设置为比当前记录时间晚一分钟。
         @Override
         public void processElement(WaterSensor value, Context ctx, Collector<Tuple3<String, Integer, Integer>> out) throws Exception {
             // 获取当前定时器的时间戳,并进行删除
@@ -103,7 +105,7 @@ public class CleaningTemperatureAlert {
             // 检查是否需要发出警报
             int tempDiff = Math.abs(value.getVc() - prevTemp);
             if (tempDiff > threshold) {
-                //温度增加超过阈值
+                //传感器增加超过阈值
                 out.collect(Tuple3.of(value.getId(), value.getVc(), tempDiff));
             }
 
@@ -111,6 +113,8 @@ public class CleaningTemperatureAlert {
             lastTimerState.update(Long.valueOf(String.valueOf(value.getVc())));
         }
 
+        
+        //该回调onTimer()方法会清除所有当前键值的状态，包括用于保存最近一次传感器以及前一个计时器时间的状态。
         @Override
         public void onTimer(long timestamp, OnTimerContext ctx, Collector<Tuple3<String, Integer, Integer>> out) throws Exception {
             //清楚当前键值的所有状态
