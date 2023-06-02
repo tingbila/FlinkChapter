@@ -117,6 +117,7 @@ public class CleaningTemperatureAlert {
         //该回调onTimer()方法会清除所有当前键值的状态，包括用于保存最近一次传感器以及前一个计时器时间的状态。
         @Override
         public void onTimer(long timestamp, OnTimerContext ctx, Collector<Tuple3<String, Integer, Integer>> out) throws Exception {
+            System.out.println("定时器响了,当前定时器时间是:" + timestamp + ":" + new Timestamp(timestamp));
             //清楚当前键值的所有状态
             lastWaterSensorVc.clear();
             lastTimerState.clear();
