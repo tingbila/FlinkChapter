@@ -110,7 +110,7 @@ public class CleaningTemperatureAlert {
             }
 
             //更新lastWaterSensorVc的状态
-            lastTimerState.update(Long.valueOf(String.valueOf(value.getVc())));
+            lastWaterSensorVc.update(Integer.valueOf(String.valueOf(value.getVc())));
         }
 
         
