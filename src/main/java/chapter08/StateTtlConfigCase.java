@@ -63,7 +63,7 @@ public class StateTtlConfigCase {
             @Override
             public void open(Configuration parameters) throws Exception {
                 ValueStateDescriptor<Tuple2<String, Integer>> descriptor = new ValueStateDescriptor<>("wordCnt", TypeInformation.of(new TypeHint<Tuple2<String, Integer>>() {}),Tuple2.of("", 0));
-                descriptor.enableTimeToLive(ttlConfig);   //注意:这行代码一定要放在wordCnt = getRuntimeContext().getState(descriptor);的前面
+                descriptor.enableTimeToLive(ttlConfig);   //注意!!!!!!:这行代码一定要放在wordCnt = getRuntimeContext().getState(descriptor);的前面
                 wordCnt = getRuntimeContext().getState(descriptor);
             }
 
