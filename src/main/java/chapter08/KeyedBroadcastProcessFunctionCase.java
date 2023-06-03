@@ -12,6 +12,8 @@ import org.apache.flink.api.common.state.*;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.configuration.Configuration;
+import org.apache.flink.configuration.QueryableStateOptions;
+import org.apache.flink.configuration.RestOptions;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.*;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
@@ -34,11 +36,14 @@ import java.util.Properties;
 // 展示了一个KeyedBroadcastProcessFunction的实现:支持在运行时动态配置传感器阈值。
 public class KeyedBroadcastProcessFunctionCase {
     public static void main(String[] args) throws Exception {
-        Configuration conf = new Configuration();
-        conf.setString("heartbeat.timeout", "18000000");
+        // get the execution environment
+        Configuration config = new Configuration();
+        config.set(RestOptions.PORT, 8083);   //为了方便查询本地JobId信息
+        config.setString("heartbeat.timeout", "18000000");
+        //启用Queryable State服务,底层对应的就是:queryable-state.enable
+        config.setBoolean(QueryableStateOptions.ENABLE_QUERYABLE_STATE_PROXY_SERVER, true);
 
-        // 获取执行环境并设置配置
-        final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment(conf);
+        final StreamExecutionEnvironment env = StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(config);
         env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
         env.setParallelism(1);
 
