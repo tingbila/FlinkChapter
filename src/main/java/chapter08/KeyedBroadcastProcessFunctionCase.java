@@ -71,7 +71,6 @@ public class KeyedBroadcastProcessFunctionCase {
         KeyedStream<WaterSensor, String> keyedStream = sensorDataStream.keyBy(r -> r.getId());
 
 
-
         //1. 定义一个MapStateDescriptor来描述我们要广播的数据的格式(广播状态的描述符)
         MapStateDescriptor<String, Integer> thresholdsDescriptor = new MapStateDescriptor<>("thresholds", String.class, Integer.class);
         //2. 将其中的阈值流注册成广播流
@@ -79,8 +78,7 @@ public class KeyedBroadcastProcessFunctionCase {
         //3. 通过connect连接主流和广播流(连接键值分区传感器水位流和广播的规则流)
         BroadcastConnectedStream<WaterSensor, WaterThreshold> connectDataStream = keyedStream.connect(broadcastThresholds);
 
-
-        connectDataStream.process(new KeyedBroadcastProcessFunction<String, WaterSensor, WaterThreshold, Tuple3<String,Integer,Integer>>() {
+        DataStream<Tuple3<String, Integer, Integer>> processDataStream = connectDataStream.process(new KeyedBroadcastProcessFunction<String, WaterSensor, WaterThreshold, Tuple3<String, Integer, Integer>>() {
             // 定义一个变量，保存上一次传感器对应的水位值(键值分区状态引用对象).
             private ValueState<Integer> lastTemp;
 
@@ -97,7 +95,7 @@ public class KeyedBroadcastProcessFunctionCase {
                 //获取只读的广播状态
                 ReadOnlyBroadcastState<String, Integer> thresholds = ctx.getBroadcastState(thresholdsDescriptor);
                 //检查阈值是否已经存在
-                if(thresholds.contains(value.getId())){
+                if (thresholds.contains(value.getId())) {
                     //获取指定传感器的阈值
                     Integer sensorThreshold = thresholds.get(value.getId());
                     //从状态中获取该传感器上一次的温度
@@ -117,73 +115,12 @@ public class KeyedBroadcastProcessFunctionCase {
             public void processBroadcastElement(WaterThreshold value, Context ctx, Collector<Tuple3<String, Integer, Integer>> out) throws Exception {
                 //获取广播状态引用对象
                 BroadcastState<String, Integer> thresholds = ctx.getBroadcastState(thresholdsDescriptor);
-                if (value.getThresholdVc() != 0){
+                if (value.getThresholdVc() != 0) {
                     //为指定传感器配置新的阈值
-                    thresholds.put(value.getId(),value.getThresholdVc());
-                }else{
+                    thresholds.put(value.getId(), value.getThresholdVc());
+                } else {
                     thresholds.remove(value.getId());
                 }
-            }
-        });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        //2条数据流进行合并,并进行keyBy
-        ConnectedStreams<WaterSensor, Tuple2<String, Long>> connectedStreams = sensorDataStream.connect(filterSwithes).keyBy(r1 -> r1.getId(), r2 -> r2.f0);
-        DataStream<WaterSensor> processDataStream = connectedStreams.process(new CoProcessFunction<WaterSensor, Tuple2<String, Long>, WaterSensor>() {
-            // 定义一个变量，作为转发开关
-            private ValueState<Boolean> forwardingEnabled;
-            // 定义一个变量，用于保存转发开关的停止计时器的时间
-            private ValueState<Long> disableTimer;
-
-            @Override
-            public void open(Configuration parameters) throws Exception {
-                forwardingEnabled = getRuntimeContext().getState(new ValueStateDescriptor<Boolean>("lastTemp", Boolean.class, false));
-                disableTimer = getRuntimeContext().getState(new ValueStateDescriptor<Long>("timer", Long.class, 0L));
-            }
-
-            @Override
-            public void processElement1(WaterSensor value, Context ctx, Collector<WaterSensor> out) throws Exception {
-                //检查是否可以转发读数
-                if (forwardingEnabled.value()) {
-                    out.collect(value);
-                }
-            }
-
-            @Override
-            public void processElement2(Tuple2<String, Long> value, Context ctx, Collector<WaterSensor> out) throws Exception {
-                System.out.println("Received filter switch: " + value);
-                //开启读数转发
-                forwardingEnabled.update(true);
-                //设置停止计时器
-                long timerTimestamp = ctx.timerService().currentProcessingTime() + value.f1;
-                Long curTimerTimestamp = disableTimer.value();
-                if (timerTimestamp > curTimerTimestamp) {
-                    //移除当前计时器并注册一个新的定时器
-                    //ctx.timerService().deleteEventTimeTimer(curTimerTimestamp);//感觉这里应该写错了
-                    ctx.timerService().deleteProcessingTimeTimer(curTimerTimestamp);
-                    ctx.timerService().registerProcessingTimeTimer(timerTimestamp);
-                }
-            }
-
-            @Override
-            public void onTimer(long timestamp, OnTimerContext ctx, Collector<WaterSensor> out) throws Exception {
-                System.out.println("Timer fired at timestamp: " + timestamp);
-                //移除所有状态，默认情况下转发开关关闭
-                forwardingEnabled.clear();
-                disableTimer.clear();
             }
         });
 
