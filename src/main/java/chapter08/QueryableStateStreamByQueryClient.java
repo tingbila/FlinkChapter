@@ -26,11 +26,11 @@ public class QueryableStateStreamByQueryClient {
         while (true) {
             try {
                 CompletableFuture<ValueState<Integer>> resultFuture1 = client.getKvState(
-                        JobID.fromHexString("f9b447b896d496d8056cdf62e5abe66f"),
+                        JobID.fromHexString("ea772d3675227e646c42c33a2660a62a"),
                         "query-name-1",  // queryable state name
                         queryKey,
                         BasicTypeInfo.STRING_TYPE_INFO,   // key的类型
-                        new ValueStateDescriptor<>("lastTemp", Integer.class));   //状态的名称和类型
+                        new ValueStateDescriptor<>("lastWaterSensorVc", Integer.class));   //状态的名称和类型
 
                 System.out.println(resultFuture1.get().value());
             } catch (Exception e) {
@@ -39,11 +39,11 @@ public class QueryableStateStreamByQueryClient {
 
             try {
                 CompletableFuture<ValueState<Long>> resultFuture2 = client.getKvState(
-                        JobID.fromHexString("f9b447b896d496d8056cdf62e5abe66f"),
+                        JobID.fromHexString("ea772d3675227e646c42c33a2660a62a"),
                         "query-name-2",  // queryable state name
                         queryKey,
                         BasicTypeInfo.STRING_TYPE_INFO,   // key的类型
-                        new ValueStateDescriptor<>("currentTimer", Long.class));   //状态的名称和类型
+                        new ValueStateDescriptor<>("lastTimerState", Long.class));   //状态的名称和类型
 
                 System.out.println(resultFuture2.get().value());
             } catch (Exception e) {
