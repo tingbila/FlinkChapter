@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.Properties;
 
 
-// 展示了一个KeyedBroadcastProcessFunction的实现:支持在运行时动态配置传感器阈值。
+// 展示了一个KeyedBroadcastProcessFunction的实现:支持在运行时动态配置传感器阈值。当传感器的差值大于对应阈值的时候就会发出警报，
 public class KeyedBroadcastProcessFunctionCase {
     public static void main(String[] args) throws Exception {
         // get the execution environment
@@ -45,9 +45,9 @@ public class KeyedBroadcastProcessFunctionCase {
 
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(config);
         env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
-        env.setParallelism(1);
+        env.setParallelism(3);
 
-        // 获取阈值流 {"sensor_1": 10, "sensor_1": 15}
+        // 获取阈值流 {"id": "sensor_1", "thresholdVc": 15}
         DataStream<String> dataStreamSource1 = env.socketTextStream("192.168.40.101", 9998, "\n");
         DataStream<WaterThreshold> thresholdsStream = dataStreamSource1.flatMap(new FlatMapFunction<String, WaterThreshold>() {
             @Override
@@ -62,6 +62,7 @@ public class KeyedBroadcastProcessFunctionCase {
                 }
             }
         });
+        thresholdsStream.print();
 
 
         // get input data by connecting to the socket
@@ -73,6 +74,8 @@ public class KeyedBroadcastProcessFunctionCase {
                 return new WaterSensor(spited[0], Long.valueOf(spited[1]), Integer.valueOf(spited[2]));
             }
         });
+        sensorDataStream.print();
+
         KeyedStream<WaterSensor, String> keyedStream = sensorDataStream.keyBy(r -> r.getId());
 
 
@@ -127,7 +130,7 @@ public class KeyedBroadcastProcessFunctionCase {
                     thresholds.remove(value.getId());
                 }
             }
-        });
+        }).setParallelism(3);
 
         processDataStream.print();
 
