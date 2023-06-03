@@ -80,9 +80,9 @@ public class KeyedBroadcastProcessFunctionCase {
 
 
         //1. 定义一个MapStateDescriptor来描述我们要广播的数据的格式(广播状态的描述符)  //第二个参数key的类型和value的类型和WaterSensor没有任何关闭,下面怎么用,这里怎么定义.
-        MapStateDescriptor<String, Integer> thresholdsDescriptor = new MapStateDescriptor<>("thresholds", String.class, Integer.class);
+        MapStateDescriptor<String, Integer> broadcastStateDescriptor = new MapStateDescriptor<>("thresholds", String.class, Integer.class);
         //2. 将其中的阈值流注册成广播流
-        BroadcastStream<WaterThreshold> broadcastThresholds = thresholdsStream.broadcast(thresholdsDescriptor);
+        BroadcastStream<WaterThreshold> broadcastThresholds = thresholdsStream.broadcast(broadcastStateDescriptor);
         //3. 通过connect连接主流和广播流(连接键值分区传感器水位流和广播的规则流)
         BroadcastConnectedStream<WaterSensor, WaterThreshold> connectDataStream = keyedStream.connect(broadcastThresholds);
 
@@ -101,7 +101,7 @@ public class KeyedBroadcastProcessFunctionCase {
             @Override
             public void processElement(WaterSensor value, ReadOnlyContext ctx, Collector<Tuple3<String, Integer, Integer>> out) throws Exception {
                 //获取只读的广播状态
-                ReadOnlyBroadcastState<String, Integer> thresholds = ctx.getBroadcastState(thresholdsDescriptor);
+                ReadOnlyBroadcastState<String, Integer> thresholds = ctx.getBroadcastState(broadcastStateDescriptor);
                 //检查阈值是否已经存在
                 if (thresholds.contains(value.getId())) {
                     //获取指定传感器的阈值
@@ -122,7 +122,7 @@ public class KeyedBroadcastProcessFunctionCase {
             @Override
             public void processBroadcastElement(WaterThreshold value, Context ctx, Collector<Tuple3<String, Integer, Integer>> out) throws Exception {
                 //获取广播状态引用对象
-                BroadcastState<String, Integer> thresholds = ctx.getBroadcastState(thresholdsDescriptor);
+                BroadcastState<String, Integer> thresholds = ctx.getBroadcastState(broadcastStateDescriptor);
                 if (value.getThresholdVc() != 0) {
                     //为指定传感器配置新的阈值
                     thresholds.put(value.getId(), value.getThresholdVc());
