@@ -3,8 +3,12 @@ package chapter08;
 
 import bean.UserBehavior;
 import bean.WaterSensor;
+import bean.WaterThreshold;
+import com.alibaba.fastjson.JSON;
+import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.common.functions.RichMapFunction;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
+import org.apache.flink.api.common.state.MapStateDescriptor;
 import org.apache.flink.api.common.state.ValueState;
 import org.apache.flink.api.common.state.ValueStateDescriptor;
 import org.apache.flink.api.java.tuple.Tuple2;
@@ -13,6 +17,7 @@ import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.*;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.KeyedProcessFunction;
+import org.apache.flink.streaming.api.functions.ProcessFunction;
 import org.apache.flink.streaming.api.functions.co.CoMapFunction;
 import org.apache.flink.streaming.api.functions.co.CoProcessFunction;
 import org.apache.flink.streaming.api.functions.timestamps.BoundedOutOfOrdernessTimestampExtractor;
@@ -37,21 +42,45 @@ public class KeyedBroadcastProcessFunctionCase {
         env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
         env.setParallelism(1);
 
+        // 获取阈值流 {"sensor_1": 10, "sensor_1": 15}
+        DataStream<String> dataStreamSource1 = env.socketTextStream("192.168.40.101", 9998, "\n");
+        DataStream<WaterThreshold> thresholdsStream = dataStreamSource1.flatMap(new FlatMapFunction<String, WaterThreshold>() {
+            @Override
+            public void flatMap(String value, Collector<WaterThreshold> out) throws Exception {
+                try {
+                    WaterThreshold jsonValue = JSON.parseObject(value, WaterThreshold.class);
+                    if (jsonValue != null) {
+                        out.collect(jsonValue);
+                    }
+                } catch (Exception e) {
+                    System.out.println("解析Json_WaterThreshold异常，异常信息是:" + e.getMessage());
+                }
+            }
+        });
+
+
         // get input data by connecting to the socket
-        DataStream<String> dataStreamSource = env.socketTextStream("192.168.40.101", 9999, "\n");
-        DataStream<WaterSensor> sensorDataStream = dataStreamSource.map(new RichMapFunction<String, WaterSensor>() {
+        DataStream<String> sensorData = env.socketTextStream("192.168.40.101", 9999, "\n");
+        DataStream<WaterSensor> sensorDataStream = sensorData.map(new RichMapFunction<String, WaterSensor>() {
             @Override
             public WaterSensor map(String line) throws Exception {
                 String[] spited = line.split(",");
                 return new WaterSensor(spited[0], Long.valueOf(spited[1]), Integer.valueOf(spited[2]));
             }
         });
+        KeyedStream<WaterSensor, String> keyedStream = sensorDataStream.keyBy(r -> r.getId());
 
-        //开启读数转发的过滤开关
-        List<Tuple2<String, Long>> data = new ArrayList<>();
-        data.add(new Tuple2<>("sensor_1", 10 * 1000L));
-        data.add(new Tuple2<>("sensor_2", 60 * 1000L));
-        DataStream<Tuple2<String, Long>> filterSwithes = env.fromCollection(data);
+
+
+        //1. 定义一个MapStateDescriptor来描述我们要广播的数据的格式(广播状态的描述符)
+        MapStateDescriptor<String, WaterThreshold> descriptor = new MapStateDescriptor<>("thresholds", String.class, WaterThreshold.class);
+        //2. 将其中的阈值流注册成广播流
+        BroadcastStream<WaterThreshold> broadcastThresholds = thresholdsStream.broadcast(descriptor);
+        //3. 通过connect连接主流和广播流(连接键值分区传感器水位流和广播的规则流)
+        BroadcastConnectedStream<WaterSensor, WaterThreshold> connectDataStream = keyedStream.connect(broadcastThresholds);
+
+
+
 
         //2条数据流进行合并,并进行keyBy
         ConnectedStreams<WaterSensor, Tuple2<String, Long>> connectedStreams = sensorDataStream.connect(filterSwithes).keyBy(r1 -> r1.getId(), r2 -> r2.f0);
