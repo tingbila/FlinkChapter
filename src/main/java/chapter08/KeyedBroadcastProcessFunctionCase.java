@@ -137,5 +137,3 @@ public class KeyedBroadcastProcessFunctionCase {
         env.execute("KeyedBroadcastProcessFunctionCase");
     }
 }
-
-
