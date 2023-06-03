@@ -76,7 +76,7 @@ public class KeyedBroadcastProcessFunctionCase {
         KeyedStream<WaterSensor, String> keyedStream = sensorDataStream.keyBy(r -> r.getId());
 
 
-        //1. 定义一个MapStateDescriptor来描述我们要广播的数据的格式(广播状态的描述符)
+        //1. 定义一个MapStateDescriptor来描述我们要广播的数据的格式(广播状态的描述符)  //第二个参数key的类型和value的类型和WaterSensor没有任何关闭,下面怎么用,这里怎么定义.
         MapStateDescriptor<String, Integer> thresholdsDescriptor = new MapStateDescriptor<>("thresholds", String.class, Integer.class);
         //2. 将其中的阈值流注册成广播流
         BroadcastStream<WaterThreshold> broadcastThresholds = thresholdsStream.broadcast(thresholdsDescriptor);
