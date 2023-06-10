@@ -15,7 +15,7 @@
         <scala.binary.version>2.11</scala.binary.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
-        <scope.range>compile</scope.range>
+        <scope.range>provided</scope.range>
     </properties>
 
     <dependencies>
