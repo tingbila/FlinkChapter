@@ -26,29 +26,29 @@ public class QueryableStateStreamByQueryClient {
         while (true) {
             try {
                 CompletableFuture<ValueState<Integer>> resultFuture1 = client.getKvState(
-                        JobID.fromHexString("ea772d3675227e646c42c33a2660a62a"),
-                        "query-name-1",  // queryable state name
+                        JobID.fromHexString("1a620164f6b6cc0ecba02494821a92d5"),
+                        "query-name",  // queryable state name
                         queryKey,
                         BasicTypeInfo.STRING_TYPE_INFO,   // key的类型
-                        new ValueStateDescriptor<>("lastWaterSensorVc", Integer.class));   //状态的名称和类型
+                        new ValueStateDescriptor<>("lastTemp", Integer.class));   //状态的名称和类型
 
                 System.out.println(resultFuture1.get().value());
             } catch (Exception e) {
                 System.out.println("获取状态失败: " + e.getMessage());  //无状态的时候会调用这个方法
             }
 
-            try {
-                CompletableFuture<ValueState<Long>> resultFuture2 = client.getKvState(
-                        JobID.fromHexString("ea772d3675227e646c42c33a2660a62a"),
-                        "query-name-2",  // queryable state name
-                        queryKey,
-                        BasicTypeInfo.STRING_TYPE_INFO,   // key的类型
-                        new ValueStateDescriptor<>("lastTimerState", Long.class));   //状态的名称和类型
-
-                System.out.println(resultFuture2.get().value());
-            } catch (Exception e) {
-                System.out.println("获取状态失败: " + e.getMessage());  //无状态的时候会调用这个方法
-            }
+//            try {
+//                CompletableFuture<ValueState<Long>> resultFuture2 = client.getKvState(
+//                        JobID.fromHexString("ea772d3675227e646c42c33a2660a62a"),
+//                        "query-name-2",  // queryable state name
+//                        queryKey,
+//                        BasicTypeInfo.STRING_TYPE_INFO,   // key的类型
+//                        new ValueStateDescriptor<>("lastTimerState", Long.class));   //状态的名称和类型
+//
+//                System.out.println(resultFuture2.get().value());
+//            } catch (Exception e) {
+//                System.out.println("获取状态失败: " + e.getMessage());  //无状态的时候会调用这个方法
+//            }
 
             Thread.sleep(1000);
         }
