@@ -47,8 +47,8 @@ public class SocketWordCountCounter1 {
             @Override
             public void open(Configuration parameters) throws Exception {
                 MetricGroup metricGroup = getRuntimeContext().getMetricGroup();
-                MetricGroup myGroup = metricGroup.addGroup("MyGroup");
-                counter = myGroup.counter("MapCounter");
+                MetricGroup myGroup = metricGroup.addGroup("MyGroup");  //counter组
+                counter = myGroup.counter("MapCounter");//counter组当中的counter
             }
 
             @Override
