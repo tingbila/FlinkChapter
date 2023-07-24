@@ -1,9 +1,11 @@
 package chapterother;
 
 import bean.WaterSensor;
+import com.codahale.metrics.SlidingWindowReservoir;
 import org.apache.flink.api.common.functions.RichMapFunction;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.RestOptions;
+import org.apache.flink.dropwizard.metrics.DropwizardHistogramWrapper;
 import org.apache.flink.metrics.Histogram;
 import org.apache.flink.metrics.MetricGroup;
 import org.apache.flink.runtime.metrics.DescriptiveStatisticsHistogram;
@@ -14,8 +16,8 @@ import org.apache.flink.streaming.api.functions.timestamps.BoundedOutOfOrderness
 import org.apache.flink.streaming.api.windowing.time.Time;
 
 
-//Flink流处理案例开发:Histogram直方图数据分布:Flink中代码提供了内置实现描述性统计直方图
-public class SocketWordCountHistogram1 {
+//在Flink程序中使用DropwizardHistogramrapper类注册DropWizard直方图
+public class SocketWordCountHistogram2 {
     public static void main(String[] args) throws Exception {
         // get the execution environment
         Configuration conf = new Configuration();
@@ -45,17 +47,18 @@ public class SocketWordCountHistogram1 {
             public void open(Configuration parameters) throws Exception {
                 MetricGroup metricGroup = getRuntimeContext().getMetricGroup();
                 MetricGroup myGroup = metricGroup.addGroup("MyGroup");  //counter组
-                histogram = myGroup.histogram("myHistogram", new DescriptiveStatisticsHistogram(1000)); //Flink中代码提供了内置实现描述性统计直方图，需要一个窗口大小的参数。
+                com.codahale.metrics.Histogram dropwizardHistogram = new com.codahale.metrics.Histogram(new SlidingWindowReservoir(500));
+                histogram = myGroup.histogram("myHistogram", new DropwizardHistogramWrapper(dropwizardHistogram));
             }
             @Override
             public WaterSensor map(WaterSensor value) throws Exception {
-                histogram.update(Long.parseLong(value.getVc().toString()));
+                this.histogram.update(Long.parseLong(value.getVc().toString()));
                 return value;
             }
         });
 
         streamOperator.print();
 
-        env.execute("SocketWordCountHistogram1");
+        env.execute("SocketWordCountHistogram2");
     }
 }
