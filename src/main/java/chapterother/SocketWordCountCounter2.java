@@ -52,7 +52,7 @@ public class SocketWordCountCounter2 {
 
                     @Override
                     public void inc() {
-                        count += 2;
+                        count += 2;   //这里没有逻辑可言,仅仅为了测试。
                     }
 
                     @Override
