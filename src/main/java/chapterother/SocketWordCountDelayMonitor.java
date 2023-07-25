@@ -28,8 +28,8 @@ public class SocketWordCountDelayMonitor {
         conf.set(RestOptions.PORT, 8083);
         StreamExecutionEnvironment env = StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(conf);
         env.setParallelism(3);
-        env.getConfig().setLatencyTrackingInterval(500L); //延迟监控:500毫秒
         env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
+        env.getConfig().setLatencyTrackingInterval(5000L); //延迟监控:500毫秒
 
         // get input data by connecting to the socket
         DataStream<String> dataStreamSource = env.socketTextStream("192.168.40.101", 9999, "\n");
