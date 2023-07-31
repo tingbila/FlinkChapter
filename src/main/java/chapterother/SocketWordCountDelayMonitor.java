@@ -8,8 +8,11 @@ import org.apache.flink.metrics.Gauge;
 import org.apache.flink.metrics.Meter;
 import org.apache.flink.metrics.MeterView;
 import org.apache.flink.metrics.MetricGroup;
+import org.apache.flink.runtime.state.filesystem.FsStateBackend;
+import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.DataStream;
+import org.apache.flink.streaming.api.environment.CheckpointConfig;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.timestamps.BoundedOutOfOrdernessTimestampExtractor;
 import org.apache.flink.streaming.api.functions.windowing.ProcessWindowFunction;
@@ -20,14 +23,14 @@ import org.apache.flink.util.Collector;
 import java.text.SimpleDateFormat;
 
 
-//flink端到端延迟监控(不包含处理逻辑)
+//flink延迟监控
 public class SocketWordCountDelayMonitor {
     public static void main(String[] args) throws Exception {
         // get the execution environment
         Configuration conf = new Configuration();
         conf.set(RestOptions.PORT, 8083);
         StreamExecutionEnvironment env = StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(conf);
-        env.setParallelism(3);
+        env.setParallelism(1);
         env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
         env.getConfig().setLatencyTrackingInterval(5000L); //延迟监控:500毫秒
 
