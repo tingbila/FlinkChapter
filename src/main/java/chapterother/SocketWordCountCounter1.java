@@ -20,7 +20,7 @@ public class SocketWordCountCounter1 {
     public static void main(String[] args) throws Exception {
         // get the execution environment
         Configuration conf = new Configuration();
-        conf.set(RestOptions.PORT, 8083);
+//        conf.set(RestOptions.PORT, 8083);
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(conf);
         env.setParallelism(3);
 //      final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
